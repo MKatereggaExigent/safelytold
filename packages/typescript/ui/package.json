@@ -1,0 +1,22 @@
+{
+  "name": "@safelytold/ui",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./styles.css": "./styles.css",
+    "./components": "./components.tsx",
+    "./api": "./api.ts",
+    "./context": "./context.tsx",
+    "./crypto": "./crypto.ts",
+    "./hooks": "./hooks.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
+}

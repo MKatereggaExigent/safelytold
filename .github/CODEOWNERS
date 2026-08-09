@@ -1,0 +1,8 @@
+* @platform-maintainers
+/services/reporter_identity_service/ @privacy-security-reviewers
+/services/evidence_service/ @privacy-security-reviewers
+/services/audit_service/ @privacy-security-reviewers
+/services/blockchain_ledger_service/ @privacy-security-reviewers
+/blockchain/ @privacy-security-reviewers
+/legal-packs/ @legal-privacy-reviewers
+/infrastructure/ @platform-security-reviewers

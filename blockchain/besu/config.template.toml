@@ -1,0 +1,13 @@
+genesis-file="/config/genesis.json"
+data-path="/data"
+node-private-key-file="/secrets/node.key"
+permissions-nodes-config-file-enabled=true
+permissions-accounts-config-file-enabled=true
+host-allowlist=["besu-rpc.internal"]
+rpc-http-enabled=true
+rpc-http-host="127.0.0.1"
+rpc-http-api=["ETH","NET","WEB3"]
+rpc-http-cors-origins=[]
+p2p-host="0.0.0.0"
+min-gas-price=0
+logging="INFO"

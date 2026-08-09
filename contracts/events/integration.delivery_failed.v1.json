@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.workpoliticscop.example/events/integration.delivery_failed.v1.json",
+  "title": "integration.delivery_failed.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specversion",
+    "id",
+    "source",
+    "type",
+    "subject",
+    "time",
+    "datacontenttype",
+    "tenant_id",
+    "correlation_id",
+    "data"
+  ],
+  "properties": {
+    "specversion": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "const": "integration.delivery_failed.v1"
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "datacontenttype": {
+      "const": "application/json"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "correlation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delivery_id",
+        "destination_ref",
+        "event_type",
+        "attempt_count"
+      ],
+      "properties": {
+        "delivery_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "destination_ref": {
+          "type": "string"
+        },
+        "event_type": {
+          "type": "string"
+        },
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

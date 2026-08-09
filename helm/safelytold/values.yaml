@@ -1,0 +1,249 @@
+global:
+  imageRegistry: registry.example.invalid/safelytold
+  imageTag: 0.1.0
+  environment: production
+  devAuthBypass: false
+services:
+  api-gateway:
+    enabled: true
+    replicas: 2
+    port: 8000
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  tenancy-service:
+    enabled: true
+    replicas: 2
+    port: 8010
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  identity-service:
+    enabled: true
+    replicas: 2
+    port: 8011
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  reporter-identity-service:
+    enabled: true
+    replicas: 2
+    port: 8012
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  policy-service:
+    enabled: true
+    replicas: 2
+    port: 8013
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  intake-service:
+    enabled: true
+    replicas: 2
+    port: 8014
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  mailbox-service:
+    enabled: true
+    replicas: 2
+    port: 8015
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  case-service:
+    enabled: true
+    replicas: 2
+    port: 8016
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  investigation-service:
+    enabled: true
+    replicas: 2
+    port: 8017
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  evidence-service:
+    enabled: true
+    replicas: 2
+    port: 8018
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  protection-service:
+    enabled: true
+    replicas: 2
+    port: 8019
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  support-service:
+    enabled: true
+    replicas: 2
+    port: 8020
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  analytics-service:
+    enabled: true
+    replicas: 2
+    port: 8021
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  integration-service:
+    enabled: true
+    replicas: 2
+    port: 8022
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  notification-service:
+    enabled: true
+    replicas: 2
+    port: 8023
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  privacy-service:
+    enabled: true
+    replicas: 2
+    port: 8024
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  audit-service:
+    enabled: true
+    replicas: 2
+    port: 8025
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  security-monitor-service:
+    enabled: true
+    replicas: 2
+    port: 8026
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  ai-gateway:
+    enabled: true
+    replicas: 2
+    port: 8027
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+  blockchain-ledger-service:
+    enabled: true
+    replicas: 2
+    port: 8028
+    resources:
+      requests:
+        cpu: 100m
+        memory: 192Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+workers:
+  workflow-worker:
+    enabled: true
+    replicas: 2
+  outbox-relay:
+    enabled: true
+    replicas: 2
+  event-consumer:
+    enabled: true
+    replicas: 2
+ingress:
+  enabled: false
+  className: ''
+  hosts: []
+serviceAccount:
+  create: true
+  annotations: {}
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+networkPolicy:
+  enabled: true

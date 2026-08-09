@@ -1,0 +1,326 @@
+/* Reporter portal app styles. */
+
+/* ------------------------------------------------------------------ */
+/* Worldwide insights (de-identified aggregate dashboard)              */
+/* ------------------------------------------------------------------ */
+
+.world-insights {
+  margin-top: 40px;
+}
+
+.bar-banner-link {
+  color: var(--ink);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.bar-banner-link:hover,
+.bar-banner-link:focus-visible {
+  color: var(--accent-strong);
+}
+
+.emergency-primary {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.emergency-primary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.emergency-primary-label {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  color: var(--accent-strong);
+}
+
+.emergency-primary-number {
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 800;
+  color: var(--accent-strong);
+}
+
+.emergency-service {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emergency-service-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.emergency-service-label {
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.emergency-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.emergency-number-accent {
+  color: var(--accent-strong);
+}
+
+.emergency-number-danger {
+  color: var(--danger);
+}
+
+.emergency-number-info {
+  color: var(--info);
+}
+
+.emergency-location-label {
+  font-size: 1rem;
+}
+
+.home-tab-bar {
+  position: sticky;
+  top: 74px;
+  z-index: 35;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 28px 0;
+}
+
+.section-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-grid {
+  margin-top: 16px;
+}
+
+.helpme-fab {
+  position: fixed;
+  right: clamp(12px, 4vw, 32px);
+  bottom: clamp(16px, 6vw, 36px);
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent-strong) 80%, #fff 20%));
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  border-radius: 999px;
+  box-shadow: 0 15px 30px rgba(15, 96, 82, 0.35);
+  z-index: 80;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.helpme-fab:hover,
+.helpme-fab:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 36px rgba(15, 96, 82, 0.5);
+}
+
+@media (max-width: 640px) {
+  .helpme-fab {
+    letter-spacing: 0.12em;
+    padding: 12px 22px;
+  }
+}
+
+.insights-privacy {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.insights-privacy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.insights-privacy strong {
+  color: var(--ink);
+}
+
+.insights-stats {
+  margin-bottom: 24px;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.insights-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 22px;
+}
+
+.insights-panel-title {
+  margin: 0 0 14px;
+  font-size: 1rem;
+}
+
+.ranked-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ranked-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ranked-rank {
+  flex: 0 0 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+}
+
+.ranked-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranked-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.ranked-label {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.ranked-share {
+  color: var(--accent-strong);
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.ranked-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.ranked-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+}
+
+.ranked-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.insights-takeaways {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.insights-takeaways strong {
+  color: var(--ink);
+}
+
+@media (max-width: 860px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Trust centre section navigation */
+.trust-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 0;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.trust-nav-link {
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted);
+  transition: color 0.18s ease, background 0.18s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.trust-nav-link:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+  text-decoration: none;
+}
+.trust-nav-link-active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-nav-link { transition: none; }
+}

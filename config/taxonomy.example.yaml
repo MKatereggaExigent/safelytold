@@ -1,0 +1,27 @@
+version: 0.1.0
+neutral_statuses:
+- unverified
+- under_assessment
+- under_investigation
+- substantiated
+- unsubstantiated
+- inconclusive
+- resolved
+- referred
+categories:
+- code: BULLYING
+  label: Bullying or psychological harassment
+- code: DISCRIMINATION
+  label: Discrimination or unequal treatment
+- code: RETALIATION
+  label: Retaliation after speaking up
+- code: ABUSE_OF_AUTHORITY
+  label: Abuse of authority or coercion
+- code: SABOTAGE
+  label: Sabotage, obstruction or credit-taking
+- code: FRAUD_CORRUPTION
+  label: Fraud, corruption or conflict of interest
+- code: SAFETY
+  label: Safety or health risk
+- code: PROCESS_FAIRNESS
+  label: Unfair recruitment, performance or promotion process

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.workpoliticscop.example/evidence-manifest.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "case_commitment",
+    "created_at",
+    "items"
+  ],
+  "properties": {
+    "manifest_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "case_commitment": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidence_commitment",
+          "sha256",
+          "copy_kind"
+        ],
+        "properties": {
+          "evidence_commitment": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "copy_kind": {
+            "enum": [
+              "sealed_original",
+              "working_copy",
+              "redacted_copy"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
