@@ -1,0 +1,9 @@
+{
+  "name": "safelytold Reporter",
+  "short_name": "Safe Report",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f8",
+  "theme_color": "#235b54",
+  "description": "Privacy-first protected workplace reporting."
+}

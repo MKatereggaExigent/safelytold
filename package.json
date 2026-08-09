@@ -1,0 +1,12 @@
+{
+  "name": "safelytold-foundation",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "dev:reporter": "pnpm --filter reporter-web dev",
+    "dev:staff": "pnpm --filter staff-web dev",
+    "dev:trust": "pnpm --filter trust-center-web dev",
+    "lint:web": "pnpm -r lint",
+    "build:web": "node scripts/build-web.mjs"
+  }
+}

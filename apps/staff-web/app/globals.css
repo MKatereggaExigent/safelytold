@@ -1,0 +1,292 @@
+/* Integrity Workspace (staff web) app styles. */
+
+/* ------------------------------------------------------------------ */
+/* Auth screens (login / callback / gated views)                       */
+/* ------------------------------------------------------------------ */
+
+.auth-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, var(--accent-soft), transparent 60%),
+    var(--bg);
+}
+
+.auth-card {
+  width: min(440px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 32px 30px;
+  text-align: center;
+}
+
+.auth-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.auth-title {
+  font-size: 1.35rem;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.auth-subtitle {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0 0 22px;
+}
+
+.auth-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-footnote {
+  color: var(--faint);
+  font-size: 0.82rem;
+  margin: 18px 0 0;
+}
+
+.auth-dev {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.auth-error {
+  color: var(--danger);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Staff shell layout                                                  */
+/* ------------------------------------------------------------------ */
+
+.staff-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100dvh;
+}
+
+.staff-side {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 22px 16px 16px;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+}
+
+.staff-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.staff-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.staff-nav-link:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.staff-nav-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.staff-nav-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.staff-side-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.staff-session {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staff-session strong {
+  font-size: 0.9rem;
+}
+
+.staff-session span {
+  color: var(--faint);
+  font-size: 0.78rem;
+}
+
+.staff-health {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+  font-size: 0.8rem;
+}
+
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+  display: inline-block;
+}
+
+.health-ok {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-soft);
+}
+
+.health-down {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.staff-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+
+.staff-top-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.staff-home-link {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.staff-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.staff-nav-backdrop {
+  display: none;
+}
+
+.staff-role-tag {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.staff-main > .page,
+.staff-main > .shell {
+  flex: 1;
+}
+
+@media (max-width: 860px) {
+  .staff-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-side {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 84vw);
+    height: 100dvh;
+    z-index: 70;
+    transform: translateX(-102%);
+    transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .staff-side.staff-side-open {
+    transform: translateX(0);
+  }
+
+  .staff-menu-toggle {
+    display: inline-flex;
+  }
+
+  .staff-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(10, 18, 15, 0.45);
+    border: none;
+    cursor: pointer;
+  }
+
+  .staff-top {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 861px) {
+  .staff-menu-toggle {
+    display: none;
+  }
+
+  .staff-nav-backdrop {
+    display: none;
+  }
+}

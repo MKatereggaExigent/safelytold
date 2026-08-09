@@ -1,0 +1,29 @@
+FROM node:22-alpine AS deps
+RUN corepack enable
+WORKDIR /app
+# Optional corporate root CA bundle (infrastructure/docker/certs/*.pem) used to
+# trust a TLS-inspecting proxy during dependency install. No-op when absent.
+COPY infrastructure/docker/certs /usr/local/share/safelytold-certs
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/safelytold-certs/om-root-ca.pem
+COPY package.json pnpm-workspace.yaml ./
+COPY apps ./apps
+COPY packages/typescript ./packages/typescript
+RUN pnpm install --no-frozen-lockfile
+ARG APP_FILTER=reporter-web
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:9085
+ARG NEXT_PUBLIC_DEV_AUTH=true
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL} \
+    NEXT_PUBLIC_DEV_AUTH=${NEXT_PUBLIC_DEV_AUTH}
+RUN pnpm --filter ./apps/${APP_FILTER} build
+
+FROM node:22-alpine AS runtime
+RUN corepack enable \
+    && addgroup -S app \
+    && adduser -S app -G app
+WORKDIR /app
+COPY --from=deps /app /app
+ARG APP_FILTER=reporter-web
+ENV APP_FILTER=${APP_FILTER} NODE_ENV=production
+USER app
+EXPOSE 3000
+CMD ["sh", "-c", "node apps/${APP_FILTER}/node_modules/next/dist/bin/next start apps/${APP_FILTER} -p ${PORT:-3000}"]

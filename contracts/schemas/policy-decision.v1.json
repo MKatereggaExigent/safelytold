@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.workpoliticscop.example/policy-decision.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision",
+    "reasons",
+    "obligations"
+  ],
+  "properties": {
+    "decision": {
+      "enum": [
+        "allow",
+        "deny",
+        "require_approval",
+        "recuse"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

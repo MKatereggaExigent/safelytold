@@ -1,0 +1,26 @@
+FROM python:3.12-slim AS runtime
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+RUN useradd --create-home --uid 10001 appuser
+WORKDIR /app
+# Optional corporate root CA bundle (infrastructure/docker/certs/*.pem) used to
+# trust a TLS-inspecting proxy during dependency install. No-op when absent.
+COPY infrastructure/docker/certs /usr/local/share/safelytold-certs
+RUN if ls /usr/local/share/safelytold-certs/*.pem >/dev/null 2>&1; then \
+      cp /usr/local/share/safelytold-certs/*.pem /usr/local/share/ca-certificates/ && update-ca-certificates; \
+    fi
+COPY pyproject.toml README.md* ./
+COPY packages/python ./packages/python
+COPY services ./services
+COPY workers ./workers
+ARG INSTALL_EXTRAS=""
+ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org"
+RUN pip install --upgrade pip \
+    && if [ -n "${INSTALL_EXTRAS}" ]; then pip install ".[${INSTALL_EXTRAS}]"; else pip install .; fi \
+    && python -c "import certifi,glob,pathlib; b=pathlib.Path(certifi.where()); extra=b''.join(pathlib.Path(f).read_bytes() for f in glob.glob('/usr/local/share/safelytold-certs/*.pem')); b.write_bytes(b.read_bytes()+extra) if extra else None"
+USER appuser
+ARG APP_MODULE=services.api_gateway.app.main:app
+ENV APP_MODULE=${APP_MODULE}
+EXPOSE 8000
+CMD ["sh", "-c", "uvicorn ${APP_MODULE} --host 0.0.0.0 --port ${PORT:-8000}"]

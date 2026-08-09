@@ -1,0 +1,38 @@
+asyncapi: 3.0.0
+info:
+  title: safelytold privacy-safe event contracts
+  version: 0.1.0
+  description: Raw case content is forbidden on these channels.
+servers:
+  local:
+    host: rabbitmq:5672
+    protocol: amqp
+channels:
+  safelytoldEvents:
+    address: safelytold.events
+    messages:
+      caseReported:
+        $ref: '#/components/messages/caseReported'
+      evidenceReceived:
+        $ref: '#/components/messages/evidenceReceived'
+      privacyIncident:
+        $ref: '#/components/messages/privacyIncident'
+operations:
+  publishDomainEvents:
+    action: send
+    channel:
+      $ref: '#/channels/safelytoldEvents'
+components:
+  messages:
+    caseReported:
+      name: case.reported.v1
+      payload:
+        $ref: './events/case.reported.v1.json'
+    evidenceReceived:
+      name: evidence.received.v1
+      payload:
+        $ref: './events/evidence.received.v1.json'
+    privacyIncident:
+      name: privacy.security_incident.v1
+      payload:
+        $ref: './events/privacy.security_incident.v1.json'

@@ -1,0 +1,34 @@
+pack_version: 0.1.0
+jurisdiction: us
+display_name: United States baseline
+status: legal-review-required
+privacy_framework: State and sector privacy laws vary
+employment_framework_note: Federal, state, union, sector and whistleblower rules vary
+  materially
+reporting:
+  anonymous_enabled: true
+  confidential_enabled: true
+  identified_enabled: true
+  emergency_notice_required: true
+sla:
+  acknowledgement_hours: 168
+  initial_risk_review_hours: 24
+  retaliation_followup_days:
+  - 7
+  - 30
+  - 90
+identity_disclosure:
+  minimum_approvals: 2
+  required_roles:
+  - privacy_officer
+  - legal_counsel
+  notify_reporter_when_lawful: true
+retention:
+  default_review_days: 1095
+  legal_hold_overrides_deletion: true
+analytics:
+  minimum_cohort_size: 10
+  small_cell_suppression: true
+notes:
+- Replace defaults after written legal sign-off.
+- Do not present this pack as a legal determination.

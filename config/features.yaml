@@ -1,0 +1,44 @@
+must:
+- tenant_setup
+- private_journal
+- anonymous_intake
+- confidential_intake
+- identified_intake
+- reporter_mailbox
+- conflict_safe_routing
+- case_management
+- evidence_hashing
+- sealed_originals
+- append_only_audit
+- policy_notices
+- temporal_workflows
+- basic_exports
+- security_monitoring
+should:
+- metadata_sanitisation
+- retaliation_plans
+- retaliation_checkins
+- external_investigator_access
+- multilingual_ui
+- staff_sso_scim
+- hris_relationship_sync
+- legal_holds
+- support_circle
+- board_summaries
+could:
+- voice_intake
+- on_device_encrypted_journal
+- differential_privacy
+- customer_managed_keys
+- sovereign_deployment
+- external_ombuds_marketplace
+- advanced_policy_agent
+prohibited:
+- truthfulness_scoring
+- automated_discipline
+- covert_email_monitoring
+- covert_chat_monitoring
+- public_accusation_board
+- individual_reputation_scores
+- autonomous_regulator_reporting
+- broad_employee_surveillance

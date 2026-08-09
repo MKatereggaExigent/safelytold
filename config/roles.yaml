@@ -1,0 +1,29 @@
+roles:
+  platform_super_admin:
+    standing_case_access: false
+    standing_identity_access: false
+  tenant_owner:
+    standing_case_access: false
+    standing_identity_access: false
+  ethics_admin:
+    standing_case_access: false
+    aggregate_metrics: true
+  triage_officer:
+    queue: new_reports
+    identity_access: policy_gated
+  case_manager:
+    case_access: assigned
+    may_override_evidence: false
+  investigator:
+    case_access: assigned
+    may_decide_discipline: false
+  legal_counsel:
+    case_access: purpose_scoped
+  privacy_officer:
+    identity_approval: true
+    routine_investigation: false
+  ombuds:
+    case_access: escalated_minimum_necessary
+  auditor:
+    audit_read_only: true
+    identity_access: false

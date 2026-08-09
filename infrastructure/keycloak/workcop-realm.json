@@ -1,0 +1,145 @@
+{
+  "realm": "safelytold",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30,
+      "config": {}
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "platform_super_admin"
+      },
+      {
+        "name": "tenant_owner"
+      },
+      {
+        "name": "ethics_admin"
+      },
+      {
+        "name": "triage_officer"
+      },
+      {
+        "name": "case_manager"
+      },
+      {
+        "name": "investigator"
+      },
+      {
+        "name": "legal_counsel"
+      },
+      {
+        "name": "privacy_officer"
+      },
+      {
+        "name": "ombuds"
+      },
+      {
+        "name": "auditor"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "safelytold-staff",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:9000/staff/auth/callback",
+        "http://localhost:9000/staff/auth/callback/*",
+        "http://localhost:3001/staff/auth/callback",
+        "http://localhost:3001/staff/auth/callback/*"
+      ],
+      "webOrigins": [
+        "http://localhost:9000",
+        "http://localhost:3001"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:9000/staff/login/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience safelytold-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "included.client.audience": "safelytold-api"
+          }
+        },
+        {
+          "name": "tenant id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "00000000-0000-0000-0000-000000000001",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "safelytold-api",
+      "bearerOnly": true
+    },
+    {
+      "clientId": "safelytold-reporter-confidential",
+      "publicClient": true,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "local-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "change-me-local-only",
+          "temporary": true
+        }
+      ],
+      "realmRoles": [
+        "tenant_owner"
+      ]
+    }
+  ]
+}
