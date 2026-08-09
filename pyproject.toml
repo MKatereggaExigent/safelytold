@@ -30,7 +30,7 @@ dependencies = [
 messaging = ["aio-pika>=9.5,<10"]
 workflow = ["temporalio>=1.15,<2"]
 ai = ["prefect>=3.7,<4"]
-blockchain = ["web3>=7.12,<8"]
+blockchain = ["web3>=7.16.0,<8"]
 workers = [
   "aio-pika>=9.5,<10",
   "temporalio>=1.15,<2",
@@ -40,7 +40,7 @@ all = [
   "aio-pika>=9.5,<10",
   "temporalio>=1.15,<2",
   "prefect>=3.7,<4",
-  "web3>=7.12,<8",
+  "web3>=7.16.0,<8",
 ]
 dev = [
   "pytest>=8.3,<10",
