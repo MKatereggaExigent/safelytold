@@ -189,7 +189,7 @@ services:
       PORT: '9085'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/gateway
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -243,7 +243,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/tenancy
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
       ADMIN_SUPERUSER_EMAILS: ${ADMIN_SUPERUSER_EMAILS:-michael.kateregga@datasqan.com}
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -266,7 +266,7 @@ services:
       PORT: '8011'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/identity
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -289,7 +289,7 @@ services:
       PORT: '8012'
       DATABASE_URL: postgresql+asyncpg://vault:${VAULT_DB_PASSWORD:-vault_dev_only}@postgres-vault:5432/reporter_identity
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -315,7 +315,7 @@ services:
       PORT: '8013'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/policy
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -338,7 +338,7 @@ services:
       PORT: '8014'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/intake
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -361,7 +361,7 @@ services:
       PORT: '8015'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/mailbox
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -385,7 +385,7 @@ services:
       PORT: '8016'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/case
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -408,7 +408,7 @@ services:
       PORT: '8017'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/investigation
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -431,7 +431,7 @@ services:
       PORT: '8018'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/evidence
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -458,7 +458,7 @@ services:
       PORT: '8019'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/protection
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -481,7 +481,7 @@ services:
       PORT: '8020'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/support
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -504,7 +504,7 @@ services:
       PORT: '8021'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/analytics
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -527,7 +527,7 @@ services:
       PORT: '8022'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/integration
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -558,7 +558,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -588,7 +588,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       NUDGE_LOCALE: en
       NUDGE_MAX_NUDGES: '3'
       NUDGE_FIRST_DELAY_HOURS: '24'
@@ -616,7 +616,7 @@ services:
       PORT: '8024'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/privacy
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -639,7 +639,7 @@ services:
       PORT: '8025'
       DATABASE_URL: postgresql+asyncpg://audit:${AUDIT_DB_PASSWORD:-audit_dev_only}@postgres-audit:5432/audit
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -665,7 +665,7 @@ services:
       PORT: '8026'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/security_monitor
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -688,7 +688,7 @@ services:
       PORT: '8027'
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/ai_gateway
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -720,7 +720,7 @@ services:
       PORT: '8028'
       DATABASE_URL: postgresql+asyncpg://audit:${AUDIT_DB_PASSWORD:-audit_dev_only}@postgres-audit:5432/ledger
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
-      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
       TEMPORAL_ADDRESS: temporal:7233
@@ -798,12 +798,12 @@ services:
       args:
         APP_FILTER: reporter-web
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
         NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
     environment:
       PORT: '3000'
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
       NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
       GATEWAY_INTERNAL_URL: http://api-gateway:9085
     depends_on:
@@ -821,12 +821,12 @@ services:
       args:
         APP_FILTER: staff-web
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
         NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
     environment:
       PORT: '3001'
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
       NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
     depends_on:
     - api-gateway
@@ -843,12 +843,12 @@ services:
       args:
         APP_FILTER: trust-center-web
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+        NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
         NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
     environment:
       PORT: '3002'
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8101}
-      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-true}
+      NEXT_PUBLIC_DEV_AUTH: ${NEXT_PUBLIC_DEV_AUTH:-false}
       NEXT_PUBLIC_KEYCLOAK_URL: ${NEXT_PUBLIC_KEYCLOAK_URL:-http://localhost:8080}
     depends_on:
     - api-gateway

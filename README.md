@@ -48,7 +48,7 @@ Then open:
 
 Infrastructure services use a dedicated high port range (`2xxxx`) so the stack can run alongside other apps (e.g. CryptoSqan) on the same server. The only fixed entry ports are `8100` (frontend), `8101` (API) and `8080` (Keycloak).
 
-The Compose environment enables `DEV_AUTH_BYPASS=true`. This is intentionally unacceptable for production. Replace it with verified OIDC/JWKS, workload identity and central policy enforcement.
+The Compose default is secure: `DEV_AUTH_BYPASS=false` and `NEXT_PUBLIC_DEV_AUTH=false` (verified OIDC/JWKS required). Set them to `true` **only** for local development — they bypass authentication entirely and must never be enabled outside a trusted dev environment.
 
 Optional local blockchain:
 

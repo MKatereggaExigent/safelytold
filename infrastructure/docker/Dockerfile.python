@@ -23,4 +23,6 @@ USER appuser
 ARG APP_MODULE=services.api_gateway.app.main:app
 ENV APP_MODULE=${APP_MODULE}
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn ${APP_MODULE} --host 0.0.0.0 --port ${PORT:-8000}"]
+# --no-access-log: uvicorn's access log includes the peer IP; reporter
+# anonymity requires that we never log client addresses.
+CMD ["sh", "-c", "uvicorn ${APP_MODULE} --host 0.0.0.0 --port ${PORT:-8000} --no-access-log"]

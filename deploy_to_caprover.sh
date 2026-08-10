@@ -94,6 +94,8 @@ server {
     listen 80;
     server_name _;
 
+    access_log off;
+
     client_max_body_size 12m;
 
     gzip on;
@@ -104,8 +106,6 @@ server {
         proxy_pass http://${BACKEND_HOST}:${API_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_read_timeout 300;
         proxy_connect_timeout 300;
@@ -115,8 +115,6 @@ server {
         proxy_pass http://${BACKEND_HOST}:${FRONTEND_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -146,14 +144,14 @@ server {
     listen 80;
     server_name _;
 
+    access_log off;
+
     client_max_body_size 12m;
 
     location / {
         proxy_pass http://${BACKEND_HOST}:${KEYCLOAK_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_read_timeout 120;
         proxy_connect_timeout 120;

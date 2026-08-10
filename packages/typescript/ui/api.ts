@@ -14,7 +14,7 @@ export const GATEWAY_BASE = (
   'http://localhost:8101'
 ).replace(/\/$/, '');
 
-export const DEV_AUTH = (process.env.NEXT_PUBLIC_DEV_AUTH ?? 'true') === 'true';
+export const DEV_AUTH = (process.env.NEXT_PUBLIC_DEV_AUTH ?? 'false') === 'true';
 export const DEV_TENANT_ID =
   process.env.NEXT_PUBLIC_DEV_TENANT_ID ?? '00000000-0000-0000-0000-000000000001';
 

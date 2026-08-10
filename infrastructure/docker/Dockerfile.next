@@ -14,7 +14,7 @@ COPY packages/typescript ./packages/typescript
 RUN pnpm install --no-frozen-lockfile
 ARG APP_FILTER=reporter-web
 ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8101
-ARG NEXT_PUBLIC_DEV_AUTH=true
+ARG NEXT_PUBLIC_DEV_AUTH=false
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL} \
     NEXT_PUBLIC_DEV_AUTH=${NEXT_PUBLIC_DEV_AUTH}
 RUN pnpm --filter ./apps/${APP_FILTER} build
