@@ -21,3 +21,31 @@ Use a private Hyperledger Besu network with QBFT consensus, node and account per
 ## Development
 
 `docker-compose.blockchain.yml` starts Anvil and deploys `IntegrityAnchor.sol`. It is strictly local; its deterministic development accounts must never be used outside local testing.
+
+## Production deployment (public EVM L2)
+
+1. Fund two accounts with native gas: a deployer/administrator and a dedicated anchor-writer (the signer the ledger service uses).
+2. Deploy the contract:
+
+   ```bash
+   cd blockchain && npm install
+   LEDGER_RPC_URL=https://<hosted-rpc-provider> \
+   LEDGER_SIGNER_PRIVATE_KEY=0x<deployer-key> \
+   LEDGER_ADMIN_ADDRESS=0x<admin-address> \
+   LEDGER_WRITER_ADDRESS=0x<anchor-writer-address> \
+   npx hardhat run scripts/deploy.ts --network base
+   ```
+
+   The script writes `deployment.local.json` with `address` and `chainId`.
+3. Configure the ledger service (server `.env`, never commit the key):
+
+   ```env
+   BLOCKCHAIN_MODE=evm
+   BLOCKCHAIN_RPC_URL=https://<hosted-rpc-provider>
+   BLOCKCHAIN_CHAIN_ID=8453
+   BLOCKCHAIN_CONTRACT_ADDRESS=<address from deployment.local.json>
+   BLOCKCHAIN_SIGNER_PRIVATE_KEY=0x<anchor-writer-key>
+   ```
+
+   The anchor-writer account must hold native gas for every anchor transaction; monitor its balance. Keep the key in a secret manager/HSM in production.
+4. Redeploy the stack: `git pull && ./deploy_to_caprover.sh`.

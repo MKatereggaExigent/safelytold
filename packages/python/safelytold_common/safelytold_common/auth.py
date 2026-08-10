@@ -85,6 +85,58 @@ async def get_context(
         raise HTTPException(401, 'Invalid access token') from exc
 
 
+async def get_context_or_none(
+    authorization: Annotated[str | None, Header()] = None,
+    x_tenant_id: Annotated[str | None, Header()] = None,
+    x_purpose: Annotated[str | None, Header()] = None,
+    x_dev_subject: Annotated[str | None, Header()] = None,
+    x_dev_roles: Annotated[str | None, Header()] = None,
+    x_dev_email: Annotated[str | None, Header()] = None,
+    cfg: Settings = Depends(settings),
+) -> RequestContext | None:
+    """Resolve a context but allow anonymous callers for public endpoints.
+
+    Returns ``None`` when no bearer token is presented. A presented but invalid
+    token still raises, so anonymous access can never claim a broken identity.
+    """
+    if cfg.dev_auth_bypass:
+        context = RequestContext(
+            tenant_id=UUID(x_tenant_id or cfg.dev_tenant_id),
+            subject_id=x_dev_subject or 'development-user',
+            roles=frozenset((x_dev_roles or 'platform_developer').split(',')),
+            purpose=x_purpose or 'development',
+            email=x_dev_email,
+        )
+        request_context.set(context)
+        return context
+
+    if not authorization or not authorization.lower().startswith('bearer '):
+        return None
+    token = authorization.split(' ', 1)[1]
+    try:
+        claims = await asyncio.to_thread(_claims, token, cfg)
+        tenant_value = claims.get('tenant_id') or x_tenant_id
+        if not tenant_value:
+            raise HTTPException(403, 'Tenant claim required')
+        purpose = x_purpose or claims.get('purpose')
+        if not purpose:
+            raise HTTPException(403, 'Purpose header required')
+        context = RequestContext(
+            tenant_id=UUID(str(tenant_value)),
+            subject_id=str(claims['sub']),
+            roles=_roles(claims),
+            purpose=str(purpose),
+            case_ids=frozenset(UUID(x) for x in claims.get('case_ids', [])),
+            email=claims.get('email'),
+        )
+        request_context.set(context)
+        return context
+    except HTTPException:
+        raise
+    except (jwt.PyJWTError, ValueError, KeyError) as exc:
+        raise HTTPException(401, 'Invalid access token') from exc
+
+
 def get_superuser(
     context: RequestContext = Depends(get_context),
     cfg: Settings = Depends(settings),
@@ -109,3 +161,6 @@ SuperuserDep = Annotated[RequestContext, Depends(get_superuser)]
 
 
 ContextDep = Annotated[RequestContext, Depends(get_context)]
+
+
+OptionalContextDep = Annotated[RequestContext | None, Depends(get_context_or_none)]

@@ -89,7 +89,7 @@ class CaseLifecycleWorkflow:
         self.state.history.append('closed')
         await workflow.execute_activity(
             anchor_case_milestone,
-            {'batch_id': f'case-close:{data.case_id}', 'case_id': data.case_id},
+            {'batch_id': f'case-close:{data.case_id}', 'case_id': data.case_id, 'tenant_id': data.tenant_id},
             start_to_close_timeout=timedelta(seconds=30),
         )
         try:

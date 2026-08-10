@@ -2,7 +2,7 @@
   "realm": "safelytold",
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "verifyEmail": false,
   "loginWithEmailAllowed": true,

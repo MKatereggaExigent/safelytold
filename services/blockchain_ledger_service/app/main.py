@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import os
+import secrets
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import DateTime, JSON, String, select
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+from safelytold_common.auth import get_context_or_none
+from safelytold_common.config import Settings, settings
 from safelytold_common.db import Base, session
 from safelytold_common.hashing import MerkleProofStep, merkle_root, verify_proof
 from safelytold_common.service import create_app
@@ -20,6 +23,27 @@ from safelytold_common.service import create_app
 from .evm import submit_anchor
 
 router = APIRouter(prefix='/v1/ledger', tags=['blockchain-ledger'])
+
+
+async def require_anchor_auth(
+    authorization: Annotated[str | None, Header()] = None,
+    x_anchor_token: Annotated[str | None, Header()] = None,
+    x_purpose: Annotated[str | None, Header()] = None,
+    cfg: Settings = Depends(settings),
+) -> None:
+    """Accept a verified staff JWT or the shared worker anchor token."""
+    if (
+        cfg.blockchain_anchor_token
+        and x_anchor_token
+        and secrets.compare_digest(x_anchor_token, cfg.blockchain_anchor_token)
+    ):
+        return
+    if await get_context_or_none(authorization=authorization, x_purpose=x_purpose, cfg=cfg) is not None:
+        return
+    raise HTTPException(401, 'Anchor authorization required')
+
+
+AnchorsDep = Annotated[None, Depends(require_anchor_auth)]
 
 
 class Kind(StrEnum):
@@ -60,7 +84,7 @@ class AnchorRequest(BaseModel):
 
 
 @router.post('/anchors')
-async def anchor(body: AnchorRequest, database: AsyncSession = Depends(session)) -> dict[str, Any]:
+async def anchor(body: AnchorRequest, _: AnchorsDep, database: AsyncSession = Depends(session)) -> dict[str, Any]:
     root = merkle_root(body.leaf_hashes)
     old = await database.scalar(select(Anchor).where(Anchor.merkle_root == root))
     if old:

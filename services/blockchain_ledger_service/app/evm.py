@@ -48,11 +48,21 @@ def _bytes32_text(value: str, web3: Any) -> bytes:
     return encoded.ljust(32, b'\0')
 
 
+def _require_env(name: str) -> str:
+    value = os.environ.get(name, '')
+    if not value:
+        raise RuntimeError(f'{name} is not configured; set it when BLOCKCHAIN_MODE=evm')
+    return value
+
+
 def _submit(tenant_hash: str, batch_id: str, root: str, kind: str, leaf_count: int) -> Receipt:
     Account, Web3 = _evm_dependencies()
-    rpc = os.environ['BLOCKCHAIN_RPC_URL']
-    address = Web3.to_checksum_address(os.environ['BLOCKCHAIN_CONTRACT_ADDRESS'])
-    private_key = os.environ['BLOCKCHAIN_SIGNER_PRIVATE_KEY']
+    rpc = _require_env('BLOCKCHAIN_RPC_URL')
+    try:
+        address = Web3.to_checksum_address(_require_env('BLOCKCHAIN_CONTRACT_ADDRESS'))
+    except ValueError as exc:  # pragma: no cover - invalid configuration
+        raise RuntimeError('BLOCKCHAIN_CONTRACT_ADDRESS is not a valid EVM address') from exc
+    private_key = _require_env('BLOCKCHAIN_SIGNER_PRIVATE_KEY')
     web3 = Web3(Web3.HTTPProvider(rpc, request_kwargs={'timeout': 20}))
     if not web3.is_connected():
         raise RuntimeError('Ledger RPC is unavailable')

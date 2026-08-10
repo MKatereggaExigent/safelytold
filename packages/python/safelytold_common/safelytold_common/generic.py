@@ -5,19 +5,24 @@ from pydantic import BaseModel,Field,ConfigDict
 from sqlalchemy import JSON,String,func,select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped,mapped_column
-from .auth import ContextDep
+from .auth import ContextDep,OptionalContextDep
+from .config import settings
 from .db import Base,TenantMixin,OutboxEvent,session,set_tenant
 class Record(TenantMixin,Base):
  __tablename__="domain_records";kind:Mapped[str]=mapped_column(String(80),index=True);payload:Mapped[dict[str,Any]]=mapped_column(JSON,default=dict)
 class Create(BaseModel):kind:str=Field(min_length=1,max_length=80);payload:dict[str,Any]=Field(default_factory=dict)
 class View(BaseModel):
  model_config=ConfigDict(from_attributes=True);id:UUID;tenant_id:UUID;kind:str;status:str;payload:dict[str,Any]
-def router(slug:str,event_type:str|None=None):
+def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozenset()):
  r=APIRouter(prefix="/v1/records",tags=[slug])
  @r.post("",response_model=View)
- async def create(b:Create,c:ContextDep,s:AsyncSession=Depends(session)):
-  await set_tenant(s,c.tenant_id);x=Record(tenant_id=c.tenant_id,kind=b.kind,payload=b.payload);s.add(x);await s.flush()
-  if event_type:s.add(OutboxEvent(tenant_id=c.tenant_id,event_type=event_type,subject=f"{slug}/{x.id}",payload={"record_id":str(x.id),"kind":b.kind,"status":x.status}))
+ async def create(b:Create,c:OptionalContextDep,s:AsyncSession=Depends(session)):
+  if c is None:
+   if b.kind not in public_kinds:raise HTTPException(401,"Authentication required")
+   tenant_id=UUID(settings().public_tenant_id)
+  else:tenant_id=c.tenant_id
+  await set_tenant(s,tenant_id);x=Record(tenant_id=tenant_id,kind=b.kind,payload=b.payload);s.add(x);await s.flush()
+  if event_type:s.add(OutboxEvent(tenant_id=tenant_id,event_type=event_type,subject=f"{slug}/{x.id}",payload={"record_id":str(x.id),"kind":b.kind,"status":x.status}))
   await s.commit();await s.refresh(x);return x
  @r.get("/count")
  async def counting(
