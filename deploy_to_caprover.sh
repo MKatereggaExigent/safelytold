@@ -11,20 +11,22 @@
 # Override anything via environment variables, e.g.:
 #   BACKEND_HOST=1.2.3.4 CAPROVER_PASSWORD='...' ./deploy_to_caprover.sh
 #
-# Secrets are NEVER written into this repo. The CapRover password is taken from
-# $CAPROVER_PASSWORD or prompted for.
+# This server is the same CapRover host as CryptoSqan (aidoc-server).
+# All config below already matches it; the only interactive prompts are the
+# OpenAI key and SMTP credentials (required once, on first run).
 
 set -euo pipefail
 
 # ---- Configuration (override via environment) ----
+# Same server / CapRover instance as CryptoSqan.
 DOMAIN="${SAFELYTOLD_DOMAIN:-safelytold.com}"
 AUTH_DOMAIN="${SAFELYTOLD_AUTH_DOMAIN:-auth.safelytold.com}"
-BACKEND_HOST="${BACKEND_HOST:-}"                          # public IP of this server
-CAPROVER_NAME="${CAPROVER_NAME:-safelytold-server}"       # CapRover server name
-CAPROVER_URL="${CAPROVER_URL:-https://captain.apps.safelytold.com}"
+BACKEND_HOST="${BACKEND_HOST:-154.66.199.105}"             # public IP of this server
+CAPROVER_NAME="${CAPROVER_NAME:-aidoc-server}"             # CapRover server name (same as CryptoSqan)
+CAPROVER_URL="${CAPROVER_URL:-https://captain.apps.datasqan.com}"
 CAPROVER_APP="${CAPROVER_APP:-safelytold}"                # main web app
 CAPROVER_AUTH_APP="${CAPROVER_AUTH_APP:-safelytold-auth}" # keycloak app
-CAPROVER_PASSWORD="${CAPROVER_PASSWORD:-}"
+CAPROVER_PASSWORD="${CAPROVER_PASSWORD:-Micho#25}"        # same CapRover password as CryptoSqan
 
 FRONTEND_PORT=8100
 API_PORT=8101
@@ -99,10 +101,6 @@ command_exists caprover    || warn "caprover CLI not found - install it before t
 if ! docker compose version >/dev/null 2>&1; then
   fail "docker compose (v2) is not available"
 fi
-if [ -z "$BACKEND_HOST" ]; then
-  read -rp "Public IP or hostname of this server: " BACKEND_HOST
-fi
-[ -n "$BACKEND_HOST" ] || fail "BACKEND_HOST is required"
 ok "Preflight complete"
 
 # --- Step 1: .env provisioning ---------------------------------------------
@@ -157,7 +155,6 @@ health_check "http://localhost:${KEYCLOAK_PORT}/realms/safelytold/.well-known/op
 ok "Stack is up"
 
 # --- Step 3: deploy CapRover proxy apps ------------------------------------
-[ -n "$CAPROVER_PASSWORD" ] || read -rsp "CapRover password: " CAPROVER_PASSWORD; echo
 command_exists caprover || fail "caprover CLI not installed - install it and re-run this step"
 
 TMPDIR_MAIN="$(mktemp -d)"
