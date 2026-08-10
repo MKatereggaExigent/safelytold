@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 20
     ports:
-    - 5432:5432
+    - 25432:5432
   postgres-vault:
     image: postgres:17-alpine
     environment:
@@ -62,8 +62,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-safelytold_dev_only}
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit load_definitions "/etc/rabbitmq/definitions.json"
     ports:
-    - 5672:5672
-    - 15672:15672
+    - 25672:5672
+    - 25673:15672
     healthcheck:
       test:
       - CMD
@@ -101,7 +101,7 @@ services:
       temporal-postgres:
         condition: service_healthy
     ports:
-    - 7233:7233
+    - 27233:7233
   temporal-ui:
     image: temporalio/ui:2.50.0
     environment:
@@ -110,7 +110,7 @@ services:
     depends_on:
     - temporal
     ports:
-    - 8088:8080
+    - 28088:8080
   minio:
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z
     command: server /data --console-address :9001
@@ -120,8 +120,8 @@ services:
     volumes:
     - minio_data:/data
     ports:
-    - 9010:9000
-    - 9011:9001
+    - 29010:9000
+    - 29011:9001
     healthcheck:
       test:
       - CMD
@@ -134,7 +134,7 @@ services:
   clamav:
     image: clamav/clamav:1.4
     ports:
-    - 3310:3310
+    - 23310:3310
     healthcheck:
       test:
       - CMD-SHELL
@@ -165,7 +165,7 @@ services:
     volumes:
     - ./infrastructure/opa:/policies:ro
     ports:
-    - 8181:8181
+    - 28181:8181
   prefect-server:
     image: prefecthq/prefect:3.7-python3.12
     profiles:
@@ -176,7 +176,7 @@ services:
     volumes:
     - prefect_data:/root/.prefect
     ports:
-    - 4200:4200
+    - 24200:4200
   api-gateway:
     build:
       context: .
@@ -224,7 +224,7 @@ services:
       postgres-core:
         condition: service_healthy
     ports:
-    - 8100:8000
+    - 8102:8000
     read_only: true
     tmpfs:
     - /tmp
@@ -866,14 +866,14 @@ services:
     volumes:
     - ./infrastructure/observability/otel-collector.yaml:/etc/otelcol/config.yaml:ro
     ports:
-    - 4317:4317
-    - 4318:4318
+    - 24317:4317
+    - 24318:4318
   prometheus:
     image: prom/prometheus:v3.5.0
     volumes:
     - ./infrastructure/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-    - 9090:9090
+    - 29090:9090
   tempo:
     image: grafana/tempo:2.8.1
     command:
@@ -882,7 +882,7 @@ services:
     - ./infrastructure/observability/tempo.yaml:/etc/tempo.yaml:ro
     - tempo_data:/tmp/tempo
     ports:
-    - 3200:3200
+    - 23200:3200
   loki:
     image: grafana/loki:3.5.3
     command:
@@ -891,7 +891,7 @@ services:
     - ./infrastructure/observability/loki.yaml:/etc/loki/local-config.yaml:ro
     - loki_data:/loki
     ports:
-    - 3100:3100
+    - 23100:3100
   grafana:
     image: grafana/grafana:12.1.0
     environment:
@@ -900,7 +900,7 @@ services:
     - grafana_data:/var/lib/grafana
     - ./infrastructure/observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
     ports:
-    - 3003:3000
+    - 23003:3000
     depends_on:
     - prometheus
     - tempo

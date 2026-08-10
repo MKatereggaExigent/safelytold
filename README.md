@@ -42,9 +42,11 @@ Then open:
 - Staff portal: `http://localhost:3001`
 - Trust centre: `http://localhost:3002`
 - API gateway docs: `http://localhost:8000/docs`
-- Temporal UI: `http://localhost:8088`
-- RabbitMQ: `http://localhost:15672`
-- MinIO: `http://localhost:9001`
+- Temporal UI: `http://localhost:28088`
+- RabbitMQ: `http://localhost:25673`
+- MinIO: `http://localhost:29011`
+
+Infrastructure services use a dedicated high port range (`2xxxx`) so the stack can run alongside other apps (e.g. CryptoSqan) on the same server. The only fixed entry ports are `8100` (frontend), `8101` (API) and `8080` (Keycloak).
 
 The Compose environment enables `DEV_AUTH_BYPASS=true`. This is intentionally unacceptable for production. Replace it with verified OIDC/JWKS, workload identity and central policy enforcement.
 
