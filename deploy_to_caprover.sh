@@ -166,14 +166,14 @@ caprover deploy \
   --caproverName "$CAPROVER_NAME" \
   --caproverApp "$CAPROVER_APP" \
   --tarFile /tmp/safelytold-main.tar.gz \
-  --default || fail "deploy of ${CAPROVER_APP} failed (is the app created in CapRover?)"
+  || fail "deploy of ${CAPROVER_APP} failed (is the app created in CapRover?)"
 
 log "Deploying ${CAPROVER_AUTH_APP} to CapRover"
 caprover deploy \
   --caproverName "$CAPROVER_NAME" \
   --caproverApp "$CAPROVER_AUTH_APP" \
   --tarFile /tmp/safelytold-auth.tar.gz \
-  --default || fail "deploy of ${CAPROVER_AUTH_APP} failed (is the app created in CapRover?)"
+  || fail "deploy of ${CAPROVER_AUTH_APP} failed (is the app created in CapRover?)"
 
 rm -rf "$TMPDIR_MAIN" "$TMPDIR_AUTH"
 
