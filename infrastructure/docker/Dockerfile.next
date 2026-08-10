@@ -4,6 +4,9 @@ WORKDIR /app
 # Optional corporate root CA bundle (infrastructure/docker/certs/*.pem) used to
 # trust a TLS-inspecting proxy during dependency install. No-op when absent.
 COPY infrastructure/docker/certs /usr/local/share/safelytold-certs
+RUN if [ ! -f /usr/local/share/safelytold-certs/om-root-ca.pem ]; then \
+      touch /usr/local/share/safelytold-certs/om-root-ca.pem; \
+    fi
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/safelytold-certs/om-root-ca.pem
 COPY package.json pnpm-workspace.yaml ./
 COPY apps ./apps
