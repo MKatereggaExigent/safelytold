@@ -150,7 +150,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_dev_only}
       KC_HOSTNAME_URL: ${KEYCLOAK_PUBLIC_URL:-http://keycloak:8080}
-      KC_PROXY_HEADERS: ${KEYCLOAK_PROXY_HEADERS:-none}
+      KC_PROXY_HEADERS: ${KEYCLOAK_PROXY_HEADERS:-xforwarded}
     volumes:
     - ./infrastructure/keycloak/safelytold-realm.json:/opt/keycloak/data/import/safelytold-realm.json:ro
     - keycloak_data:/opt/keycloak/data
