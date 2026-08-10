@@ -154,21 +154,26 @@ EOF
 ( cd "$TMPDIR_MAIN" && tar -czf /tmp/safelytold-main.tar.gz ./* )
 ( cd "$TMPDIR_AUTH" && tar -czf /tmp/safelytold-auth.tar.gz ./* )
 
+log "Authenticating with CapRover (${CAPROVER_URL})"
+caprover login \
+  --caproverUrl "$CAPROVER_URL" \
+  --caproverPassword "$CAPROVER_PASSWORD" \
+  --caproverName "$CAPROVER_NAME" \
+  --default >/dev/null 2>&1 || log "CapRover machine '${CAPROVER_NAME}' already known - using stored session"
+
 log "Deploying ${CAPROVER_APP} to CapRover"
 caprover deploy \
   --caproverName "$CAPROVER_NAME" \
   --caproverApp "$CAPROVER_APP" \
-  --caproverUrl "$CAPROVER_URL" \
-  --caproverPassword "$CAPROVER_PASSWORD" \
-  --tarFile /tmp/safelytold-main.tar.gz
+  --tarFile /tmp/safelytold-main.tar.gz \
+  --default || fail "deploy of ${CAPROVER_APP} failed (is the app created in CapRover?)"
 
 log "Deploying ${CAPROVER_AUTH_APP} to CapRover"
 caprover deploy \
   --caproverName "$CAPROVER_NAME" \
   --caproverApp "$CAPROVER_AUTH_APP" \
-  --caproverUrl "$CAPROVER_URL" \
-  --caproverPassword "$CAPROVER_PASSWORD" \
-  --tarFile /tmp/safelytold-auth.tar.gz
+  --tarFile /tmp/safelytold-auth.tar.gz \
+  --default || fail "deploy of ${CAPROVER_AUTH_APP} failed (is the app created in CapRover?)"
 
 rm -rf "$TMPDIR_MAIN" "$TMPDIR_AUTH"
 
