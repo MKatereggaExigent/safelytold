@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import DateTime, JSON, LargeBinary, String, select
+from sqlalchemy import DateTime, JSON, LargeBinary, String, func, select
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -64,6 +64,7 @@ class SafeContactPreference(Base):
     allowed_channels: Mapped[list[str]] = mapped_column(JSON, default=list)
     prohibited_times: Mapped[list[str]] = mapped_column(JSON, default=list)
     neutral_message_only: Mapped[bool] = mapped_column(default=False)
+    destination_ref_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
 
 
@@ -116,6 +117,7 @@ class SafeContactUpdate(BaseModel):
     allowed_channels: list[str] = Field(default_factory=list)
     prohibited_times: list[str] = Field(default_factory=list)
     neutral_message_only: bool = False
+    destination_ref: str | None = Field(default=None, max_length=320)
 
 
 def _view(row: MailboxMessage, body_text: str) -> MessageView:
@@ -242,6 +244,7 @@ async def get_safe_contact(case_id: UUID, reporter: ReporterDep, database: Async
         allowed_channels=pref.allowed_channels or [],
         prohibited_times=pref.prohibited_times or [],
         neutral_message_only=pref.neutral_message_only,
+        destination_ref=decrypt_body(pref.destination_ref_encrypted).decode('utf-8') if pref.destination_ref_encrypted else None,
     )
 
 
@@ -258,6 +261,7 @@ async def update_safe_contact(
     pref.allowed_channels = body.allowed_channels
     pref.prohibited_times = body.prohibited_times
     pref.neutral_message_only = body.neutral_message_only
+    pref.destination_ref_encrypted = encrypt_body(body.destination_ref.encode('utf-8')) if body.destination_ref else None
     pref.updated_at = datetime.now(UTC)
     await database.commit()
     return body
@@ -275,6 +279,35 @@ async def list_staff_thread(
             row.read_by = context.subject_id or 'staff'
     await database.commit()
     return [_view(r, decrypt_body(r.body_encrypted).decode('utf-8')) for r in rows]
+
+
+@router.get('/threads/{case_id}/unread-count')
+async def unread_reporter_count(case_id: UUID, context: ContextDep, database: AsyncSession = Depends(session)) -> dict[str, int]:
+    """Count platform->reporter messages the reporter has not read (pull-only nudge stop)."""
+    await set_tenant(database, context.tenant_id)
+    query = (
+        select(func.count())
+        .select_from(MailboxMessage)
+        .where(MailboxMessage.case_id == case_id)
+        .where(MailboxMessage.sender == 'platform')
+        .where(MailboxMessage.read_at.is_(None))
+    )
+    return {'unread': (await database.scalar(query)) or 0}
+
+
+@router.get('/threads/{case_id}/safe-contact', response_model=SafeContactUpdate)
+async def staff_safe_contact(case_id: UUID, context: ContextDep, database: AsyncSession = Depends(session)) -> SafeContactUpdate:
+    """Safe-contact snapshot for the notification nudge worker (no case content)."""
+    await set_tenant(database, context.tenant_id)
+    pref = await database.get(SafeContactPreference, case_id)
+    if pref is None:
+        return SafeContactUpdate()
+    return SafeContactUpdate(
+        allowed_channels=pref.allowed_channels or [],
+        prohibited_times=pref.prohibited_times or [],
+        neutral_message_only=pref.neutral_message_only,
+        destination_ref=decrypt_body(pref.destination_ref_encrypted).decode('utf-8') if pref.destination_ref_encrypted else None,
+    )
 
 
 @router.post('/threads/{case_id}/messages', response_model=MessageView, status_code=201)

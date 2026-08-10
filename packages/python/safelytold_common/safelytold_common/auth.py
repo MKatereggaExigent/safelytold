@@ -44,6 +44,7 @@ async def get_context(
     x_purpose: Annotated[str | None, Header()] = None,
     x_dev_subject: Annotated[str | None, Header()] = None,
     x_dev_roles: Annotated[str | None, Header()] = None,
+    x_dev_email: Annotated[str | None, Header()] = None,
     cfg: Settings = Depends(settings),
 ) -> RequestContext:
     if cfg.dev_auth_bypass:
@@ -52,6 +53,7 @@ async def get_context(
             subject_id=x_dev_subject or 'development-user',
             roles=frozenset((x_dev_roles or 'platform_developer').split(',')),
             purpose=x_purpose or 'development',
+            email=x_dev_email,
         )
         request_context.set(context)
         return context
@@ -73,6 +75,7 @@ async def get_context(
             roles=_roles(claims),
             purpose=str(purpose),
             case_ids=frozenset(UUID(x) for x in claims.get('case_ids', [])),
+            email=claims.get('email'),
         )
         request_context.set(context)
         return context
@@ -80,6 +83,29 @@ async def get_context(
         raise
     except (jwt.PyJWTError, ValueError, KeyError) as exc:
         raise HTTPException(401, 'Invalid access token') from exc
+
+
+def get_superuser(
+    context: RequestContext = Depends(get_context),
+    cfg: Settings = Depends(settings),
+) -> RequestContext:
+    """Require platform super-admin privileges.
+
+    A ``platform_super_admin`` role is always required. Outside the development
+    auth bypass the caller's verified email must also appear in
+    ``ADMIN_SUPERUSER_EMAILS`` so a single mis-assigned role can never grant
+    administration.
+    """
+    if 'platform_super_admin' not in context.roles:
+        raise HTTPException(403, 'Superuser privileges required')
+    if not cfg.dev_auth_bypass:
+        allowed = {e.strip().lower() for e in cfg.admin_superuser_emails.split(',') if e.strip()}
+        if not allowed or not context.email or context.email.strip().lower() not in allowed:
+            raise HTTPException(403, 'Email is not authorized for platform administration')
+    return context
+
+
+SuperuserDep = Annotated[RequestContext, Depends(get_superuser)]
 
 
 ContextDep = Annotated[RequestContext, Depends(get_context)]

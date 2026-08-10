@@ -567,8 +567,8 @@ export function PageHeader({ eyebrow, title, subtitle, actions }: { eyebrow?: st
 }
 
 export function Logo({
-  label = 'Integrity Platform',
-  title = 'HELP ME',
+  label = 'Integrity platform',
+  title = 'SafelyTold',
   compact = false,
 }: {
   label?: string;

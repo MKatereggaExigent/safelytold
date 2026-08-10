@@ -63,6 +63,9 @@ function ReportPageInner() {
   const [scan, setScan] = useState<AiRunResult | null>(null);
   const [scanning, setScanning] = useState(false);
   const scanTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [drafting, setDrafting] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
   const [legalQuestion, setLegalQuestion] = useState('');
   const [legalAnswer, setLegalAnswer] = useState<string | null>(null);
   const [legalCitations, setLegalCitations] = useState<Array<{ citation: string; excerpt: string }>>([]);
@@ -92,6 +95,27 @@ function ReportPageInner() {
         setScanning(false);
       }
     }, 700);
+  }
+
+  async function draftNarrative() {
+    if (narrative.trim().length < 30) {
+      push(t('rpt_draft_error_short'), 'warn');
+      return;
+    }
+    setDrafting(true);
+    setDraftError(null);
+    setDraft(null);
+    try {
+      const res = await runAi(
+        { capability: 'reporter_writing', purpose: 'reporter-narrative-draft', redacted_input: narrative.slice(0, 50000) },
+        null,
+      );
+      setDraft(res.output);
+    } catch (err) {
+      setDraftError(err instanceof Error ? err.message : t('rpt_draft_error'));
+    } finally {
+      setDrafting(false);
+    }
   }
 
   async function submit() {
@@ -363,6 +387,25 @@ function ReportPageInner() {
               placeholder={t('rpt_narrative_placeholder')}
             />
           </Field>
+
+          <div className="row" style={{ gap: 8 }}>
+            <Button variant="secondary" onClick={draftNarrative} loading={drafting} disabled={narrative.trim().length < 30}>
+              {t('rpt_draft_button')}
+            </Button>
+            {draft && <Button variant="ghost" onClick={() => { setDraft(null); setDraftError(null); }}>{t('rpt_draft_discard')}</Button>}
+          </div>
+          <p className="muted" style={{ fontSize: '0.8rem', marginTop: 4 }}>{t('rpt_draft_hint')}</p>
+          {draftError && <Alert tone="danger" title={t('rpt_draft_error_title')}>{draftError}</Alert>}
+          {draft && (
+            <Alert tone="info" title={t('rpt_draft_title')}>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{draft}</p>
+              <div className="row" style={{ gap: 8, marginTop: 12 }}>
+                <Button variant="secondary" size="sm" onClick={() => { setNarrative(draft); setDraft(null); push(t('rpt_draft_applied'), 'ok'); }}>
+                  {t('rpt_draft_use')}
+                </Button>
+              </div>
+            </Alert>
+          )}
 
           {pii.emails.length > 0 || pii.phones.length > 0 ? (
             <Alert tone="warn" title={t('rpt_pii_alert_title')}>

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
+import httpx
 from prefect import flow, task
 
 from .governance import GovernanceGate, assert_governed
+
+GATEWAY_INTERNAL_URL = os.getenv('GATEWAY_INTERNAL_URL', 'http://ai-gateway:8027').rstrip('/')
 
 
 @task
@@ -15,14 +19,28 @@ def require_redacted(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 @task
-def development_model_adapter(capability: str, payload: dict[str, Any]) -> dict[str, Any]:
-    # Replace through AI Gateway only; this task intentionally performs no direct provider call.
+def ai_gateway_draft(capability: str, payload: dict[str, Any]) -> dict[str, Any]:
+    body = {
+        'tenant_id': payload.get('tenant_id'),
+        'case_id': payload.get('case_id'),
+        'capability': capability,
+        'purpose': payload.get('purpose') or f'{capability} advisory draft',
+        'redacted_input': payload['redacted_input'],
+        'source_refs': payload.get('source_refs', []),
+    }
+    with httpx.Client(timeout=120) as client:
+        response = client.post(f'{GATEWAY_INTERNAL_URL}/v1/ai/runs', json=body)
+    if response.status_code >= 400:
+        detail = response.text[:500]
+        raise RuntimeError(f'AI Gateway run failed ({response.status_code}): {detail}')
+    data = response.json()
     return {
         'capability': capability,
-        'draft': f'Development placeholder for {capability}',
+        'draft': data['output'],
         'source_refs': payload.get('source_refs', []),
-        'uncertainty': 'high',
+        'uncertainty': data.get('uncertainty', 'medium'),
         'requires_human_approval': True,
+        'run_id': data.get('run_id'),
     }
 
 
@@ -34,7 +52,7 @@ def human_review_queue(result: dict[str, Any]) -> dict[str, Any]:
 def _run(capability: str, payload: dict[str, Any]) -> dict[str, Any]:
     assert_governed(GovernanceGate(capability=capability))
     safe = require_redacted(payload)
-    draft = development_model_adapter(capability, safe)
+    draft = ai_gateway_draft(capability, safe)
     return human_review_queue(draft)
 
 

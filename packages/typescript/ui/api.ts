@@ -2,7 +2,7 @@
  *
  * Every backend service is reached through the API gateway at
  * /gateway/{service}/... so the browser only ever talks to one origin
- * (NEXT_PUBLIC_API_BASE_URL, default http://localhost:9085).
+ * (NEXT_PUBLIC_API_BASE_URL, default http://localhost:8101).
  *
  * Auth: in development (DEV_AUTH_BYPASS=true) services accept x-dev-*
  * headers; in production a verified OIDC access token is sent instead.
@@ -11,7 +11,7 @@
 export const GATEWAY_BASE = (
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:9085'
+  'http://localhost:8101'
 ).replace(/\/$/, '');
 
 export const DEV_AUTH = (process.env.NEXT_PUBLIC_DEV_AUTH ?? 'true') === 'true';
@@ -113,6 +113,7 @@ export function buildHeaders(session: Session | null, opts: ApiOptions): Record<
       // authenticated identity so the real user/roles propagate end-to-end.
       headers['x-dev-subject'] = session.subject;
       headers['x-dev-roles'] = session.roles.join(',');
+      if (session.email) headers['x-dev-email'] = session.email;
     }
   }
   if (
@@ -611,11 +612,70 @@ export function runAi(body: AiRunRequest, session: Session | null): Promise<AiRu
   return apiFetch('ai', '/v1/ai/runs', { method: 'POST', body, session });
 }
 
+export type AiRunStatus = 'awaiting_human_review' | 'approved' | 'rejected';
+
+export interface AiRunView {
+  id: string;
+  tenant_id: string;
+  case_id: string | null;
+  capability: AiCapability;
+  purpose: string;
+  input_hash: string;
+  input_length: number;
+  source_refs: string[];
+  output: string;
+  uncertainty: string;
+  status: AiRunStatus;
+  requires_human_approval: boolean;
+  provider: string;
+  model: string;
+  requested_by: string | null;
+  requested_at: string;
+  reviewed_by: string | null;
+  decision_note: string | null;
+  decided_at: string | null;
+}
+
+export interface AiRunQuery {
+  tenant_id?: string;
+  capability?: AiCapability;
+  status?: AiRunStatus;
+  limit?: number;
+  offset?: number;
+}
+
+/** List recorded AI runs for audit and human review (superuser). */
+export function listAiRuns(session: Session | null, query?: AiRunQuery): Promise<{ runs: AiRunView[]; count: number }> {
+  const qs = new URLSearchParams();
+  if (query?.tenant_id) qs.set('tenant_id', query.tenant_id);
+  if (query?.capability) qs.set('capability', query.capability);
+  if (query?.status) qs.set('status', query.status);
+  if (typeof query?.limit === 'number') qs.set('limit', String(query.limit));
+  if (typeof query?.offset === 'number') qs.set('offset', String(query.offset));
+  const suffix = qs.size > 0 ? `?${qs.toString()}` : '';
+  return apiFetch('ai', `/v1/ai/runs${suffix}`, { session });
+}
+
+export function getAiRun(id: string, session: Session | null): Promise<AiRunView> {
+  return apiFetch('ai', `/v1/ai/runs/${id}`, { session });
+}
+
+export interface ReviewAiRunBody {
+  approved: boolean;
+  note?: string;
+}
+
+/** Approve or reject an AI draft. Advisory output is never applied until a human decides. */
+export function reviewAiRun(id: string, body: ReviewAiRunBody, session: Session | null): Promise<AiRunView> {
+  return apiFetch('ai', `/v1/ai/runs/${id}/review`, { method: 'POST', body, session });
+}
+
 export interface AiGovernance {
   capabilities: { name: string; description?: string }[];
   prohibited_purposes: string[];
   raw_evidence_allowed: boolean;
   human_approval_default: boolean;
+  provider: string;
 }
 
 export function getAiGovernance(): Promise<AiGovernance> {

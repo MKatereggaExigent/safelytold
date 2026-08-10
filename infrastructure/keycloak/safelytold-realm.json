@@ -68,18 +68,21 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "redirectUris": [
-        "http://localhost:9000/staff/auth/callback",
-        "http://localhost:9000/staff/auth/callback/*",
+        "http://localhost:8100/staff/auth/callback",
+        "http://localhost:8100/staff/auth/callback/*",
         "http://localhost:3001/staff/auth/callback",
-        "http://localhost:3001/staff/auth/callback/*"
+        "http://localhost:3001/staff/auth/callback/*",
+        "https://safelytold.com/staff/auth/callback",
+        "https://safelytold.com/staff/auth/callback/*"
       ],
       "webOrigins": [
-        "http://localhost:9000",
-        "http://localhost:3001"
+        "http://localhost:8100",
+        "http://localhost:3001",
+        "https://safelytold.com"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:9000/staff/login/*"
+        "post.logout.redirect.uris": "http://localhost:8100/staff/login/*"
       },
       "protocolMappers": [
         {
@@ -116,30 +119,53 @@
       "clientId": "safelytold-reporter-confidential",
       "publicClient": true,
       "redirectUris": [
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "https://safelytold.com/*"
       ],
       "webOrigins": [
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://safelytold.com"
       ],
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false
     }
   ],
   "users": [
-    {
-      "username": "local-admin",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "change-me-local-only",
-          "temporary": true
-        }
-      ],
-      "realmRoles": [
-        "tenant_owner"
-      ]
-    }
-  ]
+  {
+    "username": "local-admin",
+    "enabled": true,
+    "emailVerified": true,
+    "credentials": [
+      {
+        "type": "password",
+        "value": "change-me-local-only",
+        "temporary": true
+      }
+    ],
+    "realmRoles": [
+      "tenant_owner"
+    ]
+  },
+  {
+    "username": "michael.kateregga",
+    "enabled": true,
+    "email": "michael.kateregga@datasqan.com",
+    "emailVerified": true,
+    "firstName": "Michael",
+    "lastName": "Kateregga",
+    "requiredActions": [
+      "CONFIGURE_TOTP"
+    ],
+    "credentials": [
+      {
+        "type": "password",
+        "value": "superuser-set-your-own-password",
+        "temporary": true
+      }
+    ],
+    "realmRoles": [
+      "platform_super_admin"
+    ]
+  }
+]
 }

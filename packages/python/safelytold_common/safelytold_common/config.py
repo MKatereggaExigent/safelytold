@@ -7,5 +7,6 @@ class Settings(BaseSettings):
  rabbitmq_url:str="amqp://safelytold:safelytold_dev_only@rabbitmq:5672/%2F"
  jwt_issuer:str="http://keycloak:8080/realms/safelytold"; jwt_audience:str="safelytold-api"
  dev_auth_bypass:bool=False; dev_tenant_id:str="00000000-0000-0000-0000-000000000001"
+ admin_superuser_emails:str="michael.kateregga@datasqan.com"
 @lru_cache
 def settings()->Settings:return Settings()

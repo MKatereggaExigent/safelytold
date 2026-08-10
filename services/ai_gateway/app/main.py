@@ -1,15 +1,17 @@
 """AI Gateway.
 
-Provider-agnostic advisory AI. Supports a mock provider (default) and a real
-OpenAI provider. Provider and credentials come from the environment:
+Advisory AI backed by a real LLM provider. Provider and credentials come from
+the environment:
 
-  AI_PROVIDER=mock|openai          (default: mock)
-  OPENAI_API_KEY=...               (required for AI_PROVIDER=openai)
+  AI_PROVIDER=openai               (required; there is no mock provider)
+  OPENAI_API_KEY=...               (required)
   OPENAI_MODEL=...                 (default: gpt-4o-mini)
   OPENAI_BASE_URL=...              (default: https://api.openai.com/v1)
 
 The gateway only produces advisory drafts - never adverse or disciplinary
-decisions. Every run is flagged for human review.
+decisions. Every run is recorded in the ``ai_runs`` audit table (redacted-input
+hash only, never raw evidence) and flagged for human review until a superuser
+approves or rejects it.
 """
 
 import asyncio
@@ -26,19 +28,24 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
+from typing import Annotated
 from pydantic import BaseModel, Field
-from sqlalchemy import JSON, DateTime, String
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text, select
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Mapped, mapped_column
 
+from safelytold_common.auth import SuperuserDep, get_context
+from safelytold_common.config import Settings, settings
+from safelytold_common.context import RequestContext
 from safelytold_common.db import Base, session_factory
 from safelytold_common.privacy import redact_text
 from safelytold_common.service import create_app
 
 logger = logging.getLogger(__name__)
 
-AI_PROVIDER = os.getenv('AI_PROVIDER', 'mock').strip().lower()
+AI_PROVIDER = os.getenv('AI_PROVIDER', 'openai').strip().lower()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '').strip()
 OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini').strip()
 OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1').rstrip('/')
@@ -46,6 +53,8 @@ OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1').rstr
 TRANSLATOR_ENDPOINT = os.getenv('TRANSLATOR_ENDPOINT', 'https://api.cognitive.microsofttranslator.com').rstrip('/')
 TRANSLATOR_KEY = os.getenv('TRANSLATOR_KEY', '').strip()
 TRANSLATOR_REGION = os.getenv('TRANSLATOR_REGION', '').strip()
+
+DEFAULT_TENANT_ID = os.getenv('DEFAULT_TENANT_ID', '00000000-0000-0000-0000-000000000001').strip()
 
 # Azure Translator uses BCP-47 codes that differ from common ISO-639 short codes.
 TRANSLATOR_ALIASES = {
@@ -139,7 +148,7 @@ CAPABILITY_PROMPTS: dict[str, str] = {
 
 
 class Request(BaseModel):
-    tenant_id: UUID
+    tenant_id: UUID | None = None
     case_id: UUID | None = None
     capability: Capability
     purpose: str
@@ -225,6 +234,37 @@ class TranslationCache(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
     )
+
+
+class AiRun(Base):
+    """Immutable audit record of one AI advisory run.
+
+    Privacy by design: the raw input is never stored - only a SHA-256 hash of the
+    already-redacted text, so reviewers can verify what was sent without the
+    gateway ever retaining report content. Approval state is tracked here so the
+    "human approval default: true" trust commitment is enforced end-to-end.
+    """
+
+    __tablename__ = 'ai_runs'
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    tenant_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), index=True)
+    case_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), index=True)
+    capability: Mapped[str] = mapped_column(String(64), index=True)
+    purpose: Mapped[str] = mapped_column(String(256))
+    input_hash: Mapped[str] = mapped_column(String(64))
+    input_length: Mapped[int] = mapped_column(Integer)
+    source_refs: Mapped[list[str]] = mapped_column(JSON, default=list)
+    output: Mapped[str] = mapped_column(Text)
+    uncertainty: Mapped[str] = mapped_column(String(32), default='medium')
+    status: Mapped[str] = mapped_column(String(32), default='awaiting_human_review', index=True)
+    requires_human_approval: Mapped[bool] = mapped_column(Boolean, default=True)
+    provider: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str] = mapped_column(String(128))
+    requested_by: Mapped[str | None] = mapped_column(String(256))
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    reviewed_by: Mapped[str | None] = mapped_column(String(256))
+    decision_note: Mapped[str | None] = mapped_column(String(1000))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 async def _db_translate_get(cache_key: str) -> dict[str, str] | None:
@@ -445,7 +485,7 @@ async def translate(b: TranslateRequest) -> dict[str, Any]:
 
     Uses the Azure Translator Text API (cheap, 138 languages) when TRANSLATOR_KEY
     is configured. Languages Azure does not cover (e.g. Luganda) fall back to the
-    GPT/OpenAI provider, then to the dev mock. Results are cached by content hash
+    GPT/OpenAI provider. Results are cached by content hash
     - first in Postgres (shared across all users and instances, survives restarts)
     then in a per-process LRU. Only the first request for a given (locale pair,
     source hash) ever reaches a paid provider; a single-flight lock stops a cold
@@ -505,33 +545,158 @@ async def _openai_run(capability: str, purpose: str, redacted_input: str) -> str
         raise HTTPException(502, 'OpenAI provider returned an unexpected response shape')
 
 
+async def optional_context(
+    authorization: Annotated[str | None, Header()] = None,
+    x_tenant_id: Annotated[str | None, Header()] = None,
+    x_purpose: Annotated[str | None, Header()] = None,
+    x_dev_subject: Annotated[str | None, Header()] = None,
+    x_dev_roles: Annotated[str | None, Header()] = None,
+    x_dev_email: Annotated[str | None, Header()] = None,
+    cfg: Settings = Depends(settings),
+) -> RequestContext | None:
+    """Best-effort identity for the audit record.
+
+    Staff and reporters authenticate to the platform; the reporter flow is
+    deliberately pseudonymous. When no credentials are presented this returns
+    ``None`` and the run is recorded as anonymous rather than failing the
+    request (reporters must stay anonymous by design).
+    """
+    try:
+        return await get_context(
+            authorization, x_tenant_id, x_purpose, x_dev_subject, x_dev_roles, x_dev_email, cfg
+        )
+    except HTTPException:
+        return None
+
+
+def _run_view(row: AiRun) -> dict[str, Any]:
+    return {
+        'id': str(row.id),
+        'tenant_id': str(row.tenant_id),
+        'case_id': str(row.case_id) if row.case_id else None,
+        'capability': row.capability,
+        'purpose': row.purpose,
+        'input_hash': row.input_hash,
+        'input_length': row.input_length,
+        'source_refs': row.source_refs or [],
+        'output': row.output,
+        'uncertainty': row.uncertainty,
+        'status': row.status,
+        'requires_human_approval': row.requires_human_approval,
+        'provider': row.provider,
+        'model': row.model,
+        'requested_by': row.requested_by,
+        'requested_at': row.requested_at.isoformat(),
+        'reviewed_by': row.reviewed_by,
+        'decision_note': row.decision_note,
+        'decided_at': row.decided_at.isoformat() if row.decided_at else None,
+    }
+
+
 @r.post('/runs')
-async def run(b: Request) -> dict[str, Any]:
+async def run(b: Request, ctx: RequestContext | None = Depends(optional_context)) -> dict[str, Any]:
     if b.purpose in PROHIBITED:
         raise HTTPException(422, 'Purpose prohibited by trust charter')
     safe = redact_text(b.redacted_input)
-    if AI_PROVIDER == 'openai':
-        if not OPENAI_API_KEY:
-            raise HTTPException(503, "AI provider 'openai' configured but OPENAI_API_KEY is not set")
-        output = await _openai_run(b.capability.value, b.purpose, safe)
-        return {
-            'run_id': str(uuid4()),
-            'capability': b.capability,
-            'status': 'awaiting_human_review',
-            'output': output,
-            'source_refs': b.source_refs,
-            'uncertainty': 'medium',
-            'requires_human_approval': True,
-        }
+    if AI_PROVIDER != 'openai':
+        raise HTTPException(503, f"AI provider '{AI_PROVIDER}' is not supported; configure AI_PROVIDER=openai")
+    if not OPENAI_API_KEY:
+        raise HTTPException(503, "AI provider 'openai' configured but OPENAI_API_KEY is not set")
+    output = await _openai_run(b.capability.value, b.purpose, safe)
+    # Anonymous reporter flows have no tenant yet; fall back to the caller's
+    # context or the platform default so every run is still auditable.
+    tenant_id = b.tenant_id or (ctx.tenant_id if ctx else None) or UUID(DEFAULT_TENANT_ID)
+    run_id = uuid4()
+    async with session_factory()() as session:
+        session.add(
+            AiRun(
+                id=run_id,
+                tenant_id=tenant_id,
+                case_id=b.case_id,
+                capability=b.capability.value,
+                purpose=b.purpose,
+                input_hash=hashlib.sha256(safe.encode('utf-8')).hexdigest(),
+                input_length=len(safe),
+                source_refs=b.source_refs,
+                output=output,
+                uncertainty='medium',
+                status='awaiting_human_review',
+                requires_human_approval=True,
+                provider=AI_PROVIDER,
+                model=OPENAI_MODEL,
+                requested_by=(ctx.email or ctx.subject_id) if ctx else None,
+                requested_at=datetime.now(UTC),
+            )
+        )
+        await session.commit()
     return {
-        'run_id': str(uuid4()),
+        'run_id': str(run_id),
         'capability': b.capability,
         'status': 'awaiting_human_review',
-        'output': f'Development mock processed {len(safe)} redacted characters.',
+        'output': output,
         'source_refs': b.source_refs,
-        'uncertainty': 'high',
+        'uncertainty': 'medium',
         'requires_human_approval': True,
     }
+
+
+@r.get('/runs')
+async def list_runs(
+    _: SuperuserDep,
+    tenant_id: UUID | None = None,
+    capability: str | None = None,
+    status: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """List recorded AI runs for audit and human review (superuser only)."""
+    query = select(AiRun).order_by(AiRun.requested_at.desc())
+    if tenant_id is not None:
+        query = query.where(AiRun.tenant_id == tenant_id)
+    if capability:
+        query = query.where(AiRun.capability == capability)
+    if status:
+        query = query.where(AiRun.status == status)
+    query = query.limit(min(limit, 1000)).offset(max(offset, 0))
+    async with session_factory()() as session:
+        rows = (await session.scalars(query)).all()
+        return {'runs': [_run_view(row) for row in rows], 'count': len(rows)}
+
+
+@r.get('/runs/{run_id}')
+async def get_run(run_id: UUID, _: SuperuserDep) -> dict[str, Any]:
+    async with session_factory()() as session:
+        row = await session.get(AiRun, run_id)
+        if row is None:
+            raise HTTPException(404, 'AI run not found')
+        return _run_view(row)
+
+
+class ReviewRequest(BaseModel):
+    approved: bool
+    note: str = Field(default='', max_length=1000)
+
+
+@r.post('/runs/{run_id}/review')
+async def review_run(
+    run_id: UUID,
+    body: ReviewRequest,
+    ctx: SuperuserDep,
+) -> dict[str, Any]:
+    """Approve or reject an AI draft (superuser only). Advisory output is never
+    applied until a human has decided."""
+    async with session_factory()() as session:
+        row = await session.get(AiRun, run_id)
+        if row is None:
+            raise HTTPException(404, 'AI run not found')
+        if row.status != 'awaiting_human_review':
+            raise HTTPException(409, f'AI run is already {row.status}')
+        row.status = 'approved' if body.approved else 'rejected'
+        row.reviewed_by = (ctx.email or ctx.subject_id) if ctx else 'superuser'
+        row.decision_note = body.note or None
+        row.decided_at = datetime.now(UTC)
+        await session.commit()
+        return _run_view(row)
 
 
 @r.get('/governance')
