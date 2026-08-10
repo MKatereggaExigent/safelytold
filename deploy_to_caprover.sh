@@ -85,6 +85,11 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 EOF
 cat > "$TMPDIR_MAIN/nginx.conf" <<EOF
+map \$http_x_forwarded_proto \$safelytold_proto {
+    default \$http_x_forwarded_proto;
+    ""      \$scheme;
+}
+
 server {
     listen 80;
     server_name _;
@@ -101,7 +106,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_read_timeout 300;
         proxy_connect_timeout 300;
     }
@@ -112,7 +117,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_read_timeout 300;
@@ -132,6 +137,11 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 EOF
 cat > "$TMPDIR_AUTH/nginx.conf" <<EOF
+map \$http_x_forwarded_proto \$safelytold_proto {
+    default \$http_x_forwarded_proto;
+    ""      \$scheme;
+}
+
 server {
     listen 80;
     server_name _;
@@ -144,7 +154,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Proto \$safelytold_proto;
         proxy_read_timeout 120;
         proxy_connect_timeout 120;
     }
