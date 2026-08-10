@@ -60,6 +60,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-safelytold}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-safelytold_dev_only}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-safelytold_erlang_cookie_dev_change_me}
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit load_definitions "/etc/rabbitmq/definitions.json"
     ports:
     - 25672:5672

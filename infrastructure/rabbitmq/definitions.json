@@ -4,15 +4,6 @@
       "name": "/"
     }
   ],
-  "permissions": [
-    {
-      "user": "safelytold",
-      "vhost": "/",
-      "configure": ".*",
-      "write": ".*",
-      "read": ".*"
-    }
-  ],
   "exchanges": [
     {
       "name": "safelytold.events",
