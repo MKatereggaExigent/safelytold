@@ -1,7 +1,12 @@
-.PHONY: validate test lint up infra core down blockchain
+.PHONY: validate production-ready test lint up infra core down blockchain
 validate:
 	python -m compileall -q packages services workers scripts tests
 	python scripts/validate_foundation.py
+	python scripts/check_production_readiness.py
+production-ready:
+	python scripts/check_implementation_readiness.py
+	python scripts/check_staff_app_readiness.py
+	python scripts/check_production_readiness.py --strict
 test:
 	pytest -q
 lint:

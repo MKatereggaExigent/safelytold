@@ -64,6 +64,7 @@ export const TAXONOMY_LABELS: Record<string, string> = {
 
 export interface CaseSummary {
   id: string;
+  case_id?: string;
   status: string;
   mode: string;
   jurisdiction_code?: string;
@@ -77,6 +78,7 @@ export function summarizeCase(record: { id: string; status: string; payload: Rec
   const p = record.payload as Record<string, unknown>;
   return {
     id: record.id,
+    case_id: (p.case_id as string) ?? record.id,
     status: record.status,
     mode: (p.mode as string) ?? 'unknown',
     jurisdiction_code: p.jurisdiction_code as string,

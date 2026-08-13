@@ -96,6 +96,12 @@ async def append(body: Create, context: ContextDep, database: AsyncSession = Dep
     return {'id': str(value.id), 'sequence': sequence, 'entry_hash': entry_hash, 'previous_hash': previous, 'signature': signature}
 
 
+@router.get('/entries')
+async def list_entries(context: ContextDep, database: AsyncSession = Depends(session), limit: int = 100):
+    await set_tenant(database, context.tenant_id)
+    return list(await database.scalars(select(Entry).where(Entry.tenant_id == context.tenant_id).order_by(Entry.sequence.desc()).limit(min(max(limit, 1), 500))))
+
+
 @router.get('/verify/{tenant_id}')
 async def verify(tenant_id: UUID, database: AsyncSession = Depends(session)) -> dict[str, Any]:
     rows = list(await database.scalars(select(Entry).where(Entry.tenant_id == tenant_id).order_by(Entry.sequence)))

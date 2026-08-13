@@ -1,0 +1,16 @@
+version: 1
+critical_services:
+  - case_service
+  - investigation_service
+  - protection_service
+  - support_service
+  - privacy_service
+  - identity_service
+  - security_monitor_service
+  - analytics_service
+  - integration_service
+requirements:
+  forbid_generic_router: true
+  require_migration_versions: true
+  forbid_placeholders: true
+

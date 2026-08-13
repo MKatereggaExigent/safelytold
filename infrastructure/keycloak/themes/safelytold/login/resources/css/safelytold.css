@@ -1,0 +1,240 @@
+/* Identity pages use the same tokens and auth-card treatment as staff-web. */
+:root {
+  --bg: #f4f7f6;
+  --surface: #ffffff;
+  --surface-2: #f8faf9;
+  --ink: #172420;
+  --muted: #5b6b66;
+  --faint: #8aa09a;
+  --line: #dfe7e4;
+  --line-strong: #c6d3cf;
+  --accent: #13685c;
+  --accent-strong: #0d4f45;
+  --accent-soft: #e2f1ee;
+  --danger: #c02b1d;
+  --danger-soft: #fbe9e6;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+  --shadow-md: 0 6px 20px rgba(23, 36, 32, .08);
+}
+
+html,
+body,
+.pf-v5-c-login,
+.login-pf body {
+  min-height: 100%;
+  margin: 0;
+  background: radial-gradient(1200px 600px at 80% -10%, var(--accent-soft), transparent 60%), var(--bg) !important;
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pf-v5-c-login__container {
+  grid-template-columns: minmax(0, 440px) !important;
+  place-content: center;
+  padding: 32px 16px;
+}
+
+.pf-v5-c-login__main,
+.card-pf {
+  width: 100%;
+  padding: 0 !important;
+  overflow: hidden;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  text-align: center;
+}
+
+.pf-v5-c-login__main-header,
+.pf-v5-c-login__main-body,
+.pf-v5-c-login__main-footer,
+.card-pf > * {
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+
+.pf-v5-c-login__main-header {
+  padding-top: 32px !important;
+}
+
+.pf-v5-c-login__main-body {
+  padding-bottom: 30px !important;
+}
+
+#kc-header,
+.pf-v5-c-login__main-header {
+  color: var(--ink) !important;
+  text-align: center;
+}
+
+#kc-header-wrapper,
+.kc-logo-text {
+  color: var(--ink) !important;
+  font-size: 0 !important;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+#kc-header-wrapper::before,
+.kc-logo-text::before {
+  content: "SAFELYTOLD";
+  display: block;
+  color: var(--ink);
+  font-size: 1.08rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+#kc-header-wrapper::after,
+.kc-logo-text::after {
+  content: "INTEGRITY WORKSPACE";
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+}
+
+h1,
+#kc-page-title,
+.pf-v5-c-title {
+  margin: 0 0 8px !important;
+  color: var(--ink) !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+
+p,
+.instruction,
+.kc-social-section,
+#kc-info-wrapper {
+  color: var(--muted);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.pf-v5-c-form,
+#kc-form {
+  text-align: left;
+}
+
+.pf-v5-c-form__group {
+  margin-bottom: 16px;
+}
+
+.pf-v5-c-form__label-text,
+label {
+  color: var(--ink) !important;
+  font-size: .9rem;
+  font-weight: 700 !important;
+}
+
+.pf-v5-c-form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px !important;
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  font: inherit;
+}
+
+.pf-v5-c-form-control:focus-within,
+input:focus {
+  outline: none !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+
+.pf-v5-c-button.pf-m-primary,
+#kc-login,
+input[type="submit"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px !important;
+  color: #fff !important;
+  background: var(--accent) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 700;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+#kc-login:hover,
+input[type="submit"]:hover {
+  background: var(--accent-strong) !important;
+}
+
+.pf-v5-c-button.pf-m-secondary {
+  min-height: 44px;
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 700;
+}
+
+.pf-v5-c-button.pf-m-link,
+a {
+  color: var(--accent) !important;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+#kc-info,
+.pf-v5-c-login__main-footer {
+  background: var(--surface-2) !important;
+  border-top: 1px solid var(--line);
+}
+
+#kc-info-wrapper {
+  padding: 16px 30px !important;
+  background: transparent !important;
+}
+
+.pf-v5-c-alert {
+  margin-bottom: 18px;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: #f2c8c2;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .pf-v5-c-login__container { padding: 20px 12px; }
+  .pf-v5-c-login__main-header,
+  .pf-v5-c-login__main-body,
+  .pf-v5-c-login__main-footer,
+  .card-pf > * { padding-left: 22px !important; padding-right: 22px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}

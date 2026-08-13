@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID
 from fastapi import APIRouter,Depends,HTTPException,Query
 from pydantic import BaseModel,Field,ConfigDict
@@ -13,7 +13,8 @@ class Record(TenantMixin,Base):
 class Create(BaseModel):kind:str=Field(min_length=1,max_length=80);payload:dict[str,Any]=Field(default_factory=dict)
 class View(BaseModel):
  model_config=ConfigDict(from_attributes=True);id:UUID;tenant_id:UUID;kind:str;status:str;payload:dict[str,Any]
-def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozenset()):
+EventPayloadBuilder=Callable[[dict[str,Any]],dict[str,Any]]
+def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozenset(),event_payload:EventPayloadBuilder|None=None):
  r=APIRouter(prefix="/v1/records",tags=[slug])
  @r.post("",response_model=View)
  async def create(b:Create,c:OptionalContextDep,s:AsyncSession=Depends(session)):
@@ -22,7 +23,10 @@ def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozens
    tenant_id=UUID(settings().public_tenant_id)
   else:tenant_id=c.tenant_id
   await set_tenant(s,tenant_id);x=Record(tenant_id=tenant_id,kind=b.kind,payload=b.payload);s.add(x);await s.flush()
-  if event_type:s.add(OutboxEvent(tenant_id=tenant_id,event_type=event_type,subject=f"{slug}/{x.id}",payload={"record_id":str(x.id),"kind":b.kind,"status":x.status}))
+  if event_type:
+   event_data={"record_id":str(x.id),"kind":b.kind,"status":x.status}
+   if event_payload:event_data.update(event_payload(b.payload))
+   s.add(OutboxEvent(tenant_id=tenant_id,event_type=event_type,subject=f"{slug}/{x.id}",payload=event_data))
   await s.commit();await s.refresh(x);return x
  @r.get("/count")
  async def counting(

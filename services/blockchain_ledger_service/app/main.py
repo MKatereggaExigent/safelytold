@@ -116,6 +116,12 @@ async def anchor(body: AnchorRequest, _: AnchorsDep, database: AsyncSession = De
     return {'anchor_id': str(value.id), 'merkle_root': root, 'leaf_count': len(body.leaf_hashes), 'mode': mode, 'transaction_hash': transaction_hash, 'chain_id': chain_id}
 
 
+@router.get('/anchors')
+async def list_anchors(_: AnchorsDep, database: AsyncSession = Depends(session), limit: int = 100):
+    rows = list(await database.scalars(select(Anchor).order_by(Anchor.anchored_at.desc()).limit(min(max(limit, 1), 500))))
+    return [{'anchor_id': str(row.id), 'tenant_hash': row.tenant_hash, 'batch_id': row.batch_id, 'kind': row.kind, 'merkle_root': row.merkle_root, 'leaf_count': row.leaf_count, 'mode': row.mode, 'transaction_hash': row.transaction_hash, 'chain_id': row.chain_id, 'anchored_at': row.anchored_at} for row in rows]
+
+
 class Proof(BaseModel):
     leaf_hash: str
     root: str

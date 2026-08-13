@@ -1,21 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Badge, Button, CodeBlock, DataTable, EmptyState, Field, Input, PageHeader, Panel, Select, StatusPill } from '@safelytold/ui/components';
-import { createAnchor, verifyLedgerProof, type MerkleProofStep, type RecordView } from '@safelytold/ui/api';
+import { createAnchor, listLedgerAnchors, verifyLedgerProof, type MerkleProofStep } from '@safelytold/ui/api';
 import { useSession } from '@safelytold/ui/context';
 import { useToast } from '@safelytold/ui/context';
-import { formatDate, useRecords } from '@safelytold/ui/hooks';
+import { formatDate } from '@safelytold/ui/hooks';
 import { sha256Hex } from '@safelytold/ui/crypto';
-import { latestCaseRecords, summarizeCase } from '../../lib/staff';
 
 const ANCHOR_KINDS = ['audit_batch', 'evidence_manifest', 'disclosure_package', 'policy_version'] as const;
 
 export default function LedgerPage() {
   const { session } = useSession();
   const { push } = useToast();
-  const { records: anchors, loading, refresh } = useRecords('ledger');
-  const { records: caseRecords } = useRecords('case');
+  const [anchors,setAnchors]=useState<any[]>([]);const [loading,setLoading]=useState(true);async function refresh(){setLoading(true);try{setAnchors(await listLedgerAnchors(session))}finally{setLoading(false)}}useEffect(()=>{void refresh()},[session.accessToken]);
 
   const [kind, setKind] = useState<typeof ANCHOR_KINDS[number]>('audit_batch');
   const [leafCount, setLeafCount] = useState('3');
@@ -28,7 +26,6 @@ export default function LedgerPage() {
   const [proofResult, setProofResult] = useState<boolean | null>(null);
   const [verifying, setVerifying] = useState(false);
 
-  const cases = latestCaseRecords(caseRecords).map(summarizeCase);
 
   async function anchorBatch() {
     const count = Math.max(1, Math.min(32, Number.parseInt(leafCount, 10) || 1));
@@ -40,7 +37,8 @@ export default function LedgerPage() {
         tenant_hash: await sha256Hex(session.tenantId),
         kind,
         leaf_hashes: leafHashes,
-        metadata: { mode: 'demo', cases: cases.slice(0, 3).map((c) => c.id.slice(0, 8)) },
+        batch_id: crypto.randomUUID(),
+        metadata: { source: 'staff-ledger-console', purpose: session.purpose },
       }, session);
       setAnchor(res as unknown as Record<string, unknown>);
       push(`Anchor ${res.mode} — root ${res.merkle_root.slice(0, 16)}…`, 'ok');
@@ -132,11 +130,11 @@ export default function LedgerPage() {
           loading={loading}
           empty={<EmptyState title="No anchors yet" description="Anchored batches appear here." />}
           columns={[
-            { key: 'kind', label: 'Kind', render: (r) => <Badge tone="accent">{(r as RecordView).kind.replace(/_/g, ' ')}</Badge> },
-            { key: 'root', label: 'Merkle root', render: (r) => <span className="mono">{(r as RecordView).payload.merkle_root as string ?? '—'}</span> },
-            { key: 'leaves', label: 'Leaves', render: (r) => <span className="muted">{(r as RecordView).payload.leaf_count as number ?? 0}</span> },
-            { key: 'tx', label: 'Transaction', render: (r) => <Badge tone="neutral">{(r as RecordView).payload.transaction_hash as string ? 'anchored' : 'database mode'}</Badge> },
-            { key: 'created', label: 'Anchored', render: (r) => <span className="muted">{formatDate((r as RecordView).payload.created_at as string | undefined)}</span> },
+            { key: 'kind', label: 'Kind', render: (r) => <Badge tone="accent">{r.kind.replace(/_/g, ' ')}</Badge> },
+            { key: 'root', label: 'Merkle root', render: (r) => <span className="mono">{r.merkle_root}</span> },
+            { key: 'leaves', label: 'Leaves', render: (r) => <span className="muted">{r.leaf_count}</span> },
+            { key: 'tx', label: 'Transaction', render: (r) => <Badge tone={r.transaction_hash?'ok':'warn'}>{r.transaction_hash?'on-chain':'database only'}</Badge> },
+            { key: 'created', label: 'Anchored', render: (r) => <span className="muted">{formatDate(r.anchored_at)}</span> },
           ]}
           rows={anchors}
         />

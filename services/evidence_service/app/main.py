@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import BigInteger, Boolean, JSON, String
+from sqlalchemy import BigInteger, Boolean, JSON, String, select
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -47,6 +47,15 @@ class Receipt(BaseModel):
     copy_kind: Kind
     object_key: str
     scan_status: str
+
+
+@router.get('')
+async def list_evidence(context: ContextDep, database: AsyncSession = Depends(session), case_id: UUID | None = None):
+    await set_tenant(database, context.tenant_id)
+    query = select(Evidence).where(Evidence.tenant_id == context.tenant_id)
+    if case_id is not None:
+        query = query.where(Evidence.case_id == case_id)
+    return list(await database.scalars(query.order_by(Evidence.created_at.desc())))
 
 
 @router.post('/{case_id}/upload', response_model=Receipt)

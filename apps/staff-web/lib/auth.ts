@@ -56,9 +56,9 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
   return JSON.parse(json) as Record<string, unknown>;
 }
 
-/** Builds the Keycloak authorize URL (optionally the self-service register
- * screen) and stashes the PKCE verifier + state for the callback. */
-export async function beginLogin(register = false, next = '/staff'): Promise<string> {
+/** Builds the staff sign-in URL and stashes PKCE verifier + state.
+ * Public self-registration is intentionally unsupported. */
+export async function beginLogin(next = '/staff'): Promise<string> {
   const verifier = randomBase64Url(64);
   const state = randomBase64Url(24);
   const challenge = await sha256Base64Url(verifier);
@@ -75,7 +75,6 @@ export async function beginLogin(register = false, next = '/staff'): Promise<str
     code_challenge_method: 'S256',
     state,
   });
-  if (register) params.set('kc_action', 'register');
   return `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?${params.toString()}`;
 }
 
@@ -124,10 +123,16 @@ export async function refreshTokens(refreshToken: string): Promise<OidcTokens> {
   );
 }
 
-/** Builds the Keycloak logout URL (session ends after redirect). */
-export function logoutUrl(): string {
+/** Builds an RP-initiated logout URL. An ID-token hint lets Keycloak end the
+ * known session without showing a redundant confirmation screen. */
+export function logoutUrl(idToken?: string): string {
   const redirect = `${window.location.origin}/staff/login`;
-  return `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirect)}`;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    post_logout_redirect_uri: redirect,
+  });
+  if (idToken) params.set('id_token_hint', idToken);
+  return `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout?${params.toString()}`;
 }
 
 /** Maps an access token's claims onto the safelytold Session used by all pages. */

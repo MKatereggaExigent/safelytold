@@ -1,5 +1,13 @@
 {
   "privacy": "Ubumfihlo kuqala",
   "humanReview": "Okuphuma ku-AI kudinga ukubuyekezwa ngumuntu",
-  "emergency": "Lolu hlelo akuyona insizakalo yezimo eziphuthumayo."
+  "emergency": "Lolu hlelo akuyona insizakalo yezimo eziphuthumayo.",
+  "ops_eyebrow": "Ukuqinisekiswa kokusebenza", "ops_title": "Ukusebenza kokukhiqiza",
+  "ops_subtitle": "Phatha ukuqeqesha, ukuqwashisa, ikhwalithi, ukuqhubeka, abasesimweni sokubizwa, ucingo losizo nemibiko ngobufakazi obuhlolwayo.",
+  "ops_area": "Indawo yokusebenza", "ops_payload": "Idatha yokuqala yerekhodi (JSON)", "ops_create": "Dala irekhodi lokusebenza",
+  "ops_creating": "Kuyadalwa…", "ops_records": "Amarekhodi okusebenza", "ops_empty": "Awekho amarekhodi alokhu kusebenza.",
+  "ops_transition": "Yisa esimweni esilandelayo", "ops_target": "Isimo okuhlosiwe", "ops_evidence": "Ubufakazi bokushintsha (JSON)",
+  "ops_apply": "Sebenzisa ushintsho", "ops_invalid_json": "Faka idatha ye-JSON evumelekile.", "ops_saved": "Irekhodi lokusebenza ligciniwe.",
+  "ops_failed": "Isenzo sokusebenza sehlulekile.", "ops_coverage_ready": "Ukumbozwa kuka-24/7 kuyasebenza", "ops_coverage_gap": "Ukumbozwa kuka-24/7 akusebenzi",
+  "ops_created": "Kudaliwe", "ops_updated": "Kubuyekeziwe", "ops_status": "Isimo"
 }

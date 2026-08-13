@@ -1,20 +1,18 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, DataTable, EmptyState, Field, Input, PageHeader, Panel, Select, StatusPill } from '@safelytold/ui/components';
-import { applyLegalHold, listRecords, uploadEvidence, type EvidenceReceipt, type RecordView } from '@safelytold/ui/api';
+import { applyLegalHold, listCases, listEvidence, uploadEvidence, type CaseView, type EvidenceReceipt } from '@safelytold/ui/api';
 import { useSession } from '@safelytold/ui/context';
 import { useToast } from '@safelytold/ui/context';
-import { formatBytes, formatDate, useRecords } from '@safelytold/ui/hooks';
-import { latestCaseRecords, summarizeCase } from '../../lib/staff';
+import { formatBytes, formatDate } from '@safelytold/ui/hooks';
 
 export default function EvidencePage() {
   const { session } = useSession();
   const { push } = useToast();
-  const { records: evidenceRecords, loading, refresh } = useRecords('evidence');
-  const { records: caseRecords } = useRecords('case');
-
-  const cases = latestCaseRecords(caseRecords).map(summarizeCase);
+  const [evidenceRecords,setEvidenceRecords]=useState<any[]>([]);const [cases,setCases]=useState<CaseView[]>([]);const [loading,setLoading]=useState(true);
+  async function refresh(){setLoading(true);try{const [e,c]=await Promise.all([listEvidence(session),listCases(session)]);setEvidenceRecords(e);setCases(c)}finally{setLoading(false)}}
+  useEffect(()=>{void refresh()},[session.accessToken,session.tenantId]);
   const [caseId, setCaseId] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -72,7 +70,7 @@ export default function EvidencePage() {
             ) : (
               <Select value={caseId} onChange={(e) => setCaseId(e.target.value)} placeholder="Select a case…">
                 {cases.map((c) => (
-                  <option key={c.id} value={c.id}>{c.id.slice(0, 8)} · {c.status}</option>
+                  <option key={c.id} value={c.id}>{c.public_reference} · {c.status}</option>
                 ))}
               </Select>
             )}
@@ -114,14 +112,14 @@ export default function EvidencePage() {
           empty={<EmptyState title="No evidence yet" description="Uploads appear here with their hashes and copy status." />}
           columns={[
             { key: 'id', label: 'Evidence', render: (r) => <span className="mono">{r.id.slice(0, 10)}…</span> },
-            { key: 'kind', label: 'Kind', render: (r) => <Badge tone="neutral">{r.kind.replace(/_/g, ' ')}</Badge> },
+            { key: 'kind', label: 'Kind', render: (r) => <Badge tone="neutral">{r.copy_kind.replace(/_/g, ' ')}</Badge> },
             { key: 'status', label: 'State', render: (r) => <StatusPill status={r.status} /> },
-            { key: 'case', label: 'Case', render: (r) => <span className="muted">{(r.payload as Record<string, unknown>).case_id as string ? ((r.payload as Record<string, unknown>).case_id as string).slice(0, 8) : '—'}</span> },
-            { key: 'hash', label: 'SHA-256', render: (r) => <span className="mono" style={{ fontSize: '0.72rem' }}>{(r.payload as Record<string, unknown>).sha256 as string ?? '—'}</span> },
-            { key: 'legal_hold', label: 'Legal hold', render: (r) => (r.status === 'legal_hold' ? <Badge tone="danger">held</Badge> : (
+            { key: 'case', label: 'Case', render: (r) => <span className="muted">{r.case_id.slice(0,8)}</span> },
+            { key: 'hash', label: 'SHA-256', render: (r) => <span className="mono" style={{ fontSize: '0.72rem' }}>{r.sha256}</span> },
+            { key: 'legal_hold', label: 'Legal hold', render: (r) => (r.legal_hold ? <Badge tone="danger">held</Badge> : (
               <Button variant="ghost" size="sm" onClick={() => applyHold(r.id)}>Apply hold</Button>
             )) },
-            { key: 'created_at', label: 'Received', render: (r) => <span className="muted">{formatDate((r.payload as Record<string, unknown>).created_at as string)}</span> },
+            { key: 'created_at', label: 'Received', render: (r) => <span className="muted">{formatDate(r.created_at)}</span> },
           ]}
           rows={evidenceRecords}
         />

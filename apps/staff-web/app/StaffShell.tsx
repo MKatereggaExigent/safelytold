@@ -17,7 +17,10 @@ const NAV = [
   { href: '/protection', label: 'Protection', icon: '◈' },
   { href: '/support', label: 'Support circle', icon: '❖' },
   { href: '/analytics', label: 'Analytics', icon: '◮' },
+  { href: '/operations', label: 'Operations', icon: '◎' },
   { href: '/admin', label: 'Admin', icon: '⚙' },
+  { href: '/identity', label: 'Identity & access', icon: '◇', roles: ['tenant_admin', 'platform_super_admin'] },
+  { href: '/security', label: 'Security monitoring', icon: '◆', roles: ['security_analyst', 'platform_super_admin'] },
   { href: '/privacy', label: 'Privacy room', icon: '◉' },
   { href: '/ai', label: 'AI copilot', icon: '✦' },
   { href: '/ledger', label: 'Integrity ledger', icon: '⌬' },
@@ -36,7 +39,7 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
   const total = health ? Object.keys(health).length : 0;
 
   const signOut = () => {
-    window.location.assign(logoutUrl());
+    window.location.assign(logoutUrl(session.idToken));
   };
 
   return (
@@ -49,7 +52,7 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
           <Logo label="Integrity workspace" />
         </Link>
         <nav id="staff-nav" className="staff-nav" aria-label="Staff">
-          {NAV.map((item) => {
+          {NAV.filter((item) => !item.roles || item.roles.some((role) => session.roles.includes(role))).map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link key={item.href} href={item.href} className={`staff-nav-link${active ? ' staff-nav-active' : ''}`}>

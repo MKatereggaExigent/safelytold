@@ -1,0 +1,25 @@
+{
+  "clientId": "safelytold-staff",
+  "name": "SafelyTold Integrity Workspace",
+  "enabled": true,
+  "publicClient": true,
+  "standardFlowEnabled": true,
+  "directAccessGrantsEnabled": false,
+  "redirectUris": [
+    "http://localhost:8100/staff/auth/callback",
+    "http://localhost:8100/staff/auth/callback/*",
+    "http://localhost:3001/staff/auth/callback",
+    "http://localhost:3001/staff/auth/callback/*",
+    "https://safelytold.com/staff/auth/callback",
+    "https://safelytold.com/staff/auth/callback/*"
+  ],
+  "webOrigins": [
+    "http://localhost:8100",
+    "http://localhost:3001",
+    "https://safelytold.com"
+  ],
+  "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "post.logout.redirect.uris": "http://localhost:8100/staff/login##http://localhost:3001/staff/login##https://safelytold.com/staff/login"
+  }
+}

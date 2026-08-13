@@ -1,0 +1,74 @@
+version: 1
+standard: SafelyTold-SaaS
+owner: Head of Operations
+review_cycle_days: 30
+requirements:
+  - id: SAAS-00
+    requirement: Production reporting channels
+    status: pending_external
+    launch_gate: true
+    evidence: [.env.example, services/integration_service/app/channels.py]
+    action: Configure and acceptance-test the live web, dedicated email and toll-free provider channels.
+  - {id: SAAS-01, requirement: Anonymous reporting, status: implemented, launch_gate: true, evidence: [apps/reporter-web/app/report/page.tsx, services/intake_service/app/main.py]}
+  - {id: SAAS-02, requirement: Secure case management, status: implemented, launch_gate: true, evidence: [services/case_service/app/main.py, apps/staff-web/app/cases/page.tsx]}
+  - {id: SAAS-03, requirement: Case reference numbers, status: implemented, launch_gate: true, evidence: [services/intake_service/app/main.py, services/reporter_identity_service/app/main.py]}
+  - id: SAAS-04
+    requirement: Confidentiality
+    status: pending_evidence
+    launch_gate: true
+    evidence: [docs/privacy/dpia-mvp.md, docs/security/threat-model.md]
+    action: Obtain DPO and security sign-off after penetration testing.
+  - {id: SAAS-05, requirement: Electronic reporting, status: implemented, launch_gate: true, evidence: [apps/reporter-web/app/report/page.tsx]}
+  - {id: SAAS-06, requirement: Reporting categorisation, status: implemented, launch_gate: true, evidence: [config/taxonomy.example.yaml]}
+  - {id: SAAS-07, requirement: Escalation workflows, status: implemented, launch_gate: true, evidence: [workers/workflow_worker/workflows.py, workers/workflow_worker/additional_workflows.py]}
+  - {id: SAAS-08, requirement: Monthly and ad-hoc management reports, status: implemented, launch_gate: true, evidence: [services/analytics_service/app/main.py, docs/operations/management-reporting.md]}
+  - {id: SAAS-09, requirement: Trend case-volume and status analysis, status: implemented, launch_gate: true, evidence: [apps/staff-web/app/analytics/page.tsx, docs/metrics/kpi-plan.md]}
+  - id: SAAS-10
+    requirement: Secure records
+    status: pending_evidence
+    launch_gate: true
+    evidence: [docs/security/data-classification.md, docs/security/key-management.md]
+    action: Complete restore, key-rotation and access-review evidence in the target environment.
+  - {id: SAAS-11, requirement: Tenant-configurable awareness material, status: implemented, launch_gate: true, evidence: [docs/operations/awareness-pack.md]}
+  - id: SAAS-12
+    requirement: Official training
+    status: pending_evidence
+    launch_gate: true
+    evidence: [docs/operations/training-programme.md]
+    action: Deliver training and attach attendance and assessment records.
+  - id: SAAS-13
+    requirement: Business continuity
+    status: pending_evidence
+    launch_gate: true
+    evidence: [docs/operations/business-continuity.md, docs/operations/slo-and-resilience.md]
+    action: Complete failover and restore exercises against the production topology.
+  - id: SAAS-14
+    requirement: Quality assurance
+    status: pending_evidence
+    launch_gate: true
+    evidence: [docs/operations/quality-assurance.md]
+    action: Run and approve the pre-launch QA sample and security test suite.
+  - id: SAAS-15
+    requirement: 24/7 availability
+    status: pending_external
+    launch_gate: true
+    evidence: [docs/operations/business-continuity.md, docs/operations/hotline-operating-model.md]
+    action: Contract and roster primary and backup on-call coverage; execute an after-hours drill.
+  - id: SAAS-16
+    requirement: Toll-free hotline
+    status: pending_external
+    launch_gate: true
+    evidence: [docs/operations/hotline-operating-model.md]
+    action: Procure and configure a toll-free number and approved 24/7 call-centre provider.
+  - id: SAAS-17
+    requirement: Dedicated reporting email address
+    status: pending_external
+    launch_gate: true
+    evidence: [services/integration_service/app/channels.py]
+    action: Provision the mailbox/MX records and configure the provider signed webhook.
+  - id: SAAS-18
+    requirement: Ongoing support
+    status: pending_external
+    launch_gate: true
+    evidence: [docs/operations/business-continuity.md, services/integration_service/app/operations.py]
+    action: Approve the support SLA, escalation contacts, on-call rota and completed support drill.

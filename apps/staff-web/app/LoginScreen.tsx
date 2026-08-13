@@ -1,31 +1,20 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { DEV_AUTH, DEV_SESSION } from '@safelytold/ui/api';
 import { Logo } from '@safelytold/ui/components';
-import { useSession } from '@safelytold/ui/context';
 import { beginLogin } from '../lib/auth';
 
 export function LoginScreen() {
-  const router = useRouter();
-  const { setSession } = useSession();
-  const [busy, setBusy] = useState<'signin' | 'register' | 'dev' | null>(null);
+  const [busy, setBusy] = useState<'signin' | null>(null);
 
-  const start = async (register: boolean) => {
-    setBusy(register ? 'register' : 'signin');
+  const start = async () => {
+    setBusy('signin');
     try {
-      const url = await beginLogin(register);
+      const url = await beginLogin();
       window.location.assign(url);
     } catch {
       setBusy(null);
     }
-  };
-
-  const dev = () => {
-    setBusy('dev');
-    setSession(DEV_SESSION);
-    router.replace('/staff');
   };
 
   return (
@@ -44,29 +33,18 @@ export function LoginScreen() {
             type="button"
             className="btn btn-primary btn-lg"
             disabled={busy !== null}
-            onClick={() => start(false)}
+            onClick={start}
           >
             {busy === 'signin' ? 'Redirecting to sign in…' : 'Sign in'}
           </button>
-          <button
-            type="button"
-            className="btn btn-secondary btn-lg"
-            disabled={busy !== null}
-            onClick={() => start(true)}
-          >
-            {busy === 'register' ? 'Opening registration…' : 'Create an account'}
-          </button>
         </div>
+        <p className="auth-footnote">
+          Staff accounts are issued by an authorised tenant administrator. Contact your organisation’s
+          SafelyTold administrator if you require access.
+        </p>
         <p className="auth-footnote">
           Multi-factor verification uses a QR code and a time-based one-time passcode.
         </p>
-        {DEV_AUTH && (
-          <div className="auth-dev">
-            <button type="button" className="btn btn-ghost btn-sm" disabled={busy !== null} onClick={dev}>
-              {busy === 'dev' ? 'Entering…' : 'Continue in development mode'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

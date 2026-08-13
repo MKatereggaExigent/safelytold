@@ -255,6 +255,83 @@ export function createRecord(
   });
 }
 
+/* Explicit staff domain APIs. Generic records are retained only for legacy
+ * public bounded contexts and must not be used by the production staff app. */
+export interface CaseView { id:string; tenant_id:string; public_reference:string; status:string; jurisdiction_code:string; severity_band:string; workflow_id:string; policy_version_id:string; created_at:string; updated_at:string }
+export const listCases=(session:Session,status?:string)=>apiFetch<CaseView[]>('case',`/v1/cases${status?`?status=${encodeURIComponent(status)}`:''}`,{session});
+export const getCase=(id:string,session:Session)=>apiFetch<CaseView>('case',`/v1/cases/${id}`,{session});
+export const transitionCase=(id:string,status:string,reason:string,session:Session)=>apiFetch<CaseView>('case',`/v1/cases/${id}/transitions`,{method:'POST',body:{status,reason},session});
+export const addAllegation=(id:string,taxonomy_code:string,session:Session)=>apiFetch('case',`/v1/cases/${id}/allegations`,{method:'POST',body:{taxonomy_code},session});
+export const createConflictCheck=(id:string,body:{candidate_subject_id:string;conflicts:string[];decision:'clear'|'conflicted'},session:Session)=>apiFetch<{id:string}>('case',`/v1/cases/${id}/conflict-checks`,{method:'POST',body,session});
+export const createCaseAssignment=(id:string,body:{subject_id:string;role:string;purpose:string;valid_until:string;conflict_check_id:string},session:Session)=>apiFetch('case',`/v1/cases/${id}/assignments`,{method:'POST',body,session});
+
+export interface InvestigationView {id:string;tenant_id:string;case_id:string;status:string;scope:string;issue_ids:string[];evidence_sources:string[];milestones:Record<string,unknown>[];created_at:string}
+export const listInvestigations=(caseId:string,session:Session)=>apiFetch<InvestigationView[]>('investigation',`/v1/investigations/case/${caseId}`,{session});
+export const createInvestigation=(body:{case_id:string;issue_ids:string[];scope:string;evidence_sources:string[];milestones:Record<string,unknown>[]},session:Session)=>apiFetch<InvestigationView>('investigation','/v1/investigations',{method:'POST',body,session});
+export const createFinding=(id:string,body:Record<string,unknown>,session:Session)=>apiFetch('investigation',`/v1/investigations/${id}/findings`,{method:'POST',body,session});
+export const reviewFinding=(investigationId:string,findingId:string,reviewerApprovalId:string,session:Session)=>apiFetch('investigation',`/v1/investigations/${investigationId}/findings/${findingId}/review`,{method:'POST',body:{reviewer_approval_id:reviewerApprovalId},session});
+export const createAppeal=(id:string,body:Record<string,unknown>,session:Session)=>apiFetch('investigation',`/v1/investigations/${id}/appeals`,{method:'POST',body,session});
+
+export interface ProtectionPlanView {id:string;tenant_id:string;case_id:string;status:string;requested_measures:string[];approved_measures:string[];owner_ref:string;next_review_at:string;created_at:string}
+export const listProtectionPlans=(caseId:string,session:Session)=>apiFetch<ProtectionPlanView[]>('protection',`/v1/protection/case/${caseId}`,{session});
+export const createProtectionPlan=(body:Record<string,unknown>,session:Session)=>apiFetch<ProtectionPlanView>('protection','/v1/protection/plans',{method:'POST',body,session});
+export const scheduleProtectionCheckIn=(planId:string,due_at:string,session:Session)=>apiFetch('protection',`/v1/protection/plans/${planId}/check-ins`,{method:'POST',body:{due_at},session});
+export const listProtectionCheckIns=(session:Session,caseId?:string)=>apiFetch<any[]>('protection',`/v1/protection/check-ins${caseId?`?case_id=${caseId}`:''}`,{session});
+export const completeProtectionCheckIn=(id:string,body:Record<string,unknown>,session:Session)=>apiFetch('protection',`/v1/protection/check-ins/${id}/complete`,{method:'POST',body,session});
+
+export const listSupportDirectory=(session:Session)=>apiFetch<any[]>('support','/v1/support/directory',{session});
+export const createSupportDirectoryEntry=(body:Record<string,unknown>,session:Session)=>apiFetch('support','/v1/support/directory',{method:'POST',body,session});
+export const listSupportReferrals=(session:Session,caseId?:string)=>apiFetch<any[]>('support',`/v1/support/referrals${caseId?`?case_id=${caseId}`:''}`,{session});
+export const createSupportReferral=(body:Record<string,unknown>,session:Session)=>apiFetch('support','/v1/support/referrals',{method:'POST',body,session});
+
+export const listPrivacyRequests=(session:Session)=>apiFetch<any[]>('privacy','/v1/privacy/requests',{session});
+export const createPrivacyRequest=(body:Record<string,unknown>,session:Session)=>apiFetch('privacy','/v1/privacy/requests',{method:'POST',body,session});
+export const decidePrivacyRequest=(id:string,body:Record<string,unknown>,session:Session)=>apiFetch('privacy',`/v1/privacy/requests/${id}/decision`,{method:'POST',body,session});
+export const listPrivacyBreaches=(session:Session)=>apiFetch<any[]>('privacy','/v1/privacy/breaches',{session});
+export const createPrivacyBreach=(body:Record<string,unknown>,session:Session)=>apiFetch('privacy','/v1/privacy/breaches',{method:'POST',body,session});
+
+export const listStaffIdentities=(session:Session)=>apiFetch<any[]>('identity','/v1/identity/staff',{session});
+export const createStaffIdentity=(body:Record<string,unknown>,session:Session)=>apiFetch('identity','/v1/identity/staff',{method:'POST',body,session});
+export const listAccessGrants=(session:Session)=>apiFetch<any[]>('identity','/v1/identity/grants',{session});
+export const createAccessGrant=(body:Record<string,unknown>,session:Session)=>apiFetch('identity','/v1/identity/grants',{method:'POST',body,session});
+export const revokeAccessGrant=(id:string,session:Session)=>apiFetch('identity',`/v1/identity/grants/${id}`,{method:'DELETE',session});
+export const listSecurityAlerts=(session:Session,status?:string)=>apiFetch<any[]>('security',`/v1/security/alerts${status?`?status=${status}`:''}`,{session});
+export const createSecurityAlert=(body:Record<string,unknown>,session:Session)=>apiFetch('security','/v1/security/alerts',{method:'POST',body,session});
+export const triageSecurityAlert=(id:string,body:Record<string,unknown>,session:Session)=>apiFetch('security',`/v1/security/alerts/${id}/triage`,{method:'POST',body,session});
+export const listAuditEntries=(session:Session)=>apiFetch<any[]>('audit','/v1/audit/entries',{session});
+export const listLedgerAnchors=(session:Session)=>apiFetch<any[]>('ledger','/v1/ledger/anchors',{session});
+export const listEvidence=(session:Session,caseId?:string)=>apiFetch<any[]>('evidence',`/v1/evidence${caseId?`?case_id=${caseId}`:''}`,{session});
+export const getAnalyticsTrends=(metric:string,start:string,end:string,session:Session)=>apiFetch<any>('analytics',`/v1/analytics/trends?metric=${encodeURIComponent(metric)}&start=${start}&end=${end}`,{session});
+export const getManagementReport=(start:string,end:string,session:Session)=>apiFetch<any>('analytics',`/v1/analytics/management-report?start=${start}&end=${end}`,{session});
+
+export type OperationsArea = 'awareness' | 'training' | 'qa' | 'continuity' | 'coverage' | 'hotline' | 'reporting';
+
+export interface OperationalRecordView {
+  id: string;
+  area: OperationsArea;
+  status: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export function listOperationalRecords(session: Session, area?: OperationsArea): Promise<OperationalRecordView[]> {
+  const suffix = area ? `?area=${encodeURIComponent(area)}` : '';
+  return apiFetch('integration', `/v1/operations${suffix}`, { session });
+}
+
+export function createOperationalRecord(session: Session, area: OperationsArea, payload: Record<string, unknown>): Promise<OperationalRecordView> {
+  return apiFetch('integration', '/v1/operations', { method: 'POST', body: { area, payload }, session });
+}
+
+export function transitionOperationalRecord(session: Session, id: string, status: string, evidence: Record<string, unknown>): Promise<OperationalRecordView> {
+  return apiFetch('integration', `/v1/operations/${id}/transition`, { method: 'POST', body: { status, evidence }, session });
+}
+
+export function getCoverageStatus(session: Session): Promise<{ covered: boolean; active_shifts: number; launch_ready: boolean }> {
+  return apiFetch('integration', '/v1/operations/coverage/status', { session });
+}
+
 /* ------------------------------------------------------------------ */
 /* Reporter identity (public + vault)                                  */
 /* ------------------------------------------------------------------ */

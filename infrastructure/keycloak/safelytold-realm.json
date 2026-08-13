@@ -1,10 +1,13 @@
 {
   "realm": "safelytold",
+  "displayName": "SafelyTold",
+  "displayNameHtml": "<strong>SafelyTold</strong><span>Integrity Workspace</span>",
+  "loginTheme": "safelytold",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
-  "verifyEmail": false,
+  "verifyEmail": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "requiredActions": [
@@ -66,7 +69,7 @@
       "clientId": "safelytold-staff",
       "publicClient": true,
       "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": true,
+      "directAccessGrantsEnabled": false,
       "redirectUris": [
         "http://localhost:8100/staff/auth/callback",
         "http://localhost:8100/staff/auth/callback/*",
@@ -82,7 +85,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:8100/staff/login/*"
+        "post.logout.redirect.uris": "http://localhost:8100/staff/login##http://localhost:3001/staff/login##https://safelytold.com/staff/login"
       },
       "protocolMappers": [
         {
@@ -99,14 +102,17 @@
         {
           "name": "tenant id",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
           "consentRequired": false,
           "config": {
             "claim.name": "tenant_id",
-            "claim.value": "00000000-0000-0000-0000-000000000001",
+            "user.attribute": "tenant_id",
             "id.token.claim": "true",
             "access.token.claim": "true",
-            "userinfo.token.claim": "true"
+            "userinfo.token.claim": "true",
+            "jsonType.label": "String",
+            "multivalued": "false",
+            "aggregate.attrs": "false"
           }
         }
       ]
@@ -135,6 +141,9 @@
     "username": "local-admin",
     "enabled": true,
     "emailVerified": true,
+    "attributes": {
+      "tenant_id": "00000000-0000-0000-0000-000000000001"
+    },
     "credentials": [
       {
         "type": "password",
@@ -153,6 +162,9 @@
     "emailVerified": true,
     "firstName": "Michael",
     "lastName": "Kateregga",
+    "attributes": {
+      "tenant_id": "00000000-0000-0000-0000-000000000001"
+    },
     "requiredActions": [
       "CONFIGURE_TOTP"
     ],

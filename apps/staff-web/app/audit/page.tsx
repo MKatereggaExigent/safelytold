@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Badge, Button, DataTable, EmptyState, Field, Input, PageHeader, Panel, Select, StatusPill } from '@safelytold/ui/components';
-import { appendAuditEntry, verifyAuditChain, type RecordView } from '@safelytold/ui/api';
+import { appendAuditEntry, listAuditEntries, verifyAuditChain } from '@safelytold/ui/api';
 import { useSession } from '@safelytold/ui/context';
 import { useToast } from '@safelytold/ui/context';
-import { formatDate, useRecords } from '@safelytold/ui/hooks';
+import { formatDate } from '@safelytold/ui/hooks';
 
 const EVENT_TYPES = [
   'case.opened',
@@ -23,7 +23,9 @@ const EVENT_TYPES = [
 export default function AuditPage() {
   const { session } = useSession();
   const { push } = useToast();
-  const { records, loading, refresh } = useRecords('audit');
+  const [records,setRecords]=useState<any[]>([]); const [loading,setLoading]=useState(true);
+  async function refresh(){setLoading(true);try{setRecords(await listAuditEntries(session))}finally{setLoading(false)}}
+  useEffect(()=>{void refresh()},[session.accessToken,session.tenantId]);
 
   const [eventType, setEventType] = useState<string>(EVENT_TYPES[0] ?? 'case.opened');
   const [subjectRef, setSubjectRef] = useState('');
@@ -119,11 +121,11 @@ export default function AuditPage() {
           loading={loading}
           empty={<EmptyState title="No audit entries" description="Events recorded by services appear here." />}
           columns={[
-            { key: 'event', label: 'Event', render: (r) => <Badge tone="info">{(r as RecordView).payload.event_type as string ?? (r as RecordView).kind}</Badge> },
-            { key: 'subject', label: 'Subject', render: (r) => <span className="mono">{(r as RecordView).payload.subject_ref as string ?? '—'}</span> },
-            { key: 'purpose', label: 'Purpose', render: (r) => <span className="muted">{(r as RecordView).payload.purpose as string ?? '—'}</span> },
-            { key: 'status', label: 'Status', render: (r) => <StatusPill status={(r as RecordView).status} /> },
-            { key: 'created', label: 'Recorded', render: (r) => <span className="muted">{formatDate((r as RecordView).payload.created_at as string | undefined)}</span> },
+            { key: 'event', label: 'Event', render: (r) => <Badge tone="info">{r.event_type}</Badge> },
+            { key: 'subject', label: 'Subject', render: (r) => <span className="mono">{r.subject_ref}</span> },
+            { key: 'purpose', label: 'Purpose', render: (r) => <span className="muted">{r.purpose}</span> },
+            { key: 'status', label: 'Sequence', render: (r) => <StatusPill status={`#${r.sequence}`} /> },
+            { key: 'created', label: 'Recorded', render: (r) => <span className="muted">{formatDate(r.created_at)}</span> },
           ]}
           rows={records}
         />

@@ -11,7 +11,7 @@ const env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' };
 
 for (const app of apps) {
   console.log(`\n--- building ${app} ---`);
-  const result = spawnSync(pnpm, ['--filter', app, 'build'], {
+  const result = spawnSync(pnpm, ['--dir', app, 'build'], {
     stdio: 'inherit',
     env,
   });

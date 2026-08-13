@@ -81,8 +81,13 @@ scripts/                  Validation, development and integrity utilities
 ```bash
 python -m compileall packages services workers scripts tests
 python scripts/validate_foundation.py
+python scripts/check_production_readiness.py
 pytest
 ```
+
+Before approving production, run `make production-ready`. This strict gate intentionally fails until
+every SafelyTold SaaS operational and external dependency in `config/production-readiness.yaml` has verified
+evidence; source-code presence alone is not production sign-off.
 
 For the web applications and contract:
 
@@ -94,6 +99,10 @@ cd blockchain && npm install && npm test
 ```
 
 ## Non-negotiable production work
+
+Client and investor due diligence starts at [`docs/assurance/README.md`](docs/assurance/README.md), which
+records implemented controls, GDPR/POPIA mapping, SOC 2 readiness, residual risk and shared responsibility
+without claiming certifications that have not been awarded.
 
 1. Independent privacy, labour-law, whistleblowing, evidence and security review in every jurisdiction.
 2. Phishing-resistant MFA, verified JWT/JWKS, SCIM lifecycle and privileged access management.

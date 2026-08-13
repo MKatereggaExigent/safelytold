@@ -1,3 +1,5 @@
-from safelytold_common.generic import router
 from safelytold_common.service import create_app
-app=create_app('Integration Service','HRIS, SCIM, SSO, messaging, voice, EAP, regulators and webhooks.',[router('integration_service',None)])
+from .operations import router as operations_router
+from .channels import router as channels_router
+
+app=create_app('Integration Service','Signed, idempotent reporting-channel adapters and operational assurance.',[operations_router, channels_router])

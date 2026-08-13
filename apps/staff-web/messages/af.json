@@ -1,5 +1,13 @@
 {
   "privacy": "Privaatheid eerste",
   "humanReview": "KI-uitsette vereis menslike hersiening",
-  "emergency": "Hierdie toepassing is nie \u2019n nooddiens nie."
+  "emergency": "Hierdie toepassing is nie \u2019n nooddiens nie.",
+  "ops_eyebrow": "Bedryfsversekering", "ops_title": "Produksiebedrywighede",
+  "ops_subtitle": "Bestuur opleiding, bewustheid, gehalte, kontinuïteit, bystand, blitslyn en verslagdoening met ouditbare bewyse.",
+  "ops_area": "Werkvloeigebied", "ops_payload": "Aanvanklike rekorddata (JSON)", "ops_create": "Skep werkvloeirekord",
+  "ops_creating": "Skep tans…", "ops_records": "Werkvloeirekords", "ops_empty": "Geen rekords bestaan vir hierdie werkvloei nie.",
+  "ops_transition": "Skuif na volgende status", "ops_target": "Teikenstatus", "ops_evidence": "Oorgangsbewyse (JSON)",
+  "ops_apply": "Pas oorgang toe", "ops_invalid_json": "Voer geldige JSON-objekdata in.", "ops_saved": "Bedryfsrekord gestoor.",
+  "ops_failed": "Die werkvloeiaksie het misluk.", "ops_coverage_ready": "24/7-dekking aktief", "ops_coverage_gap": "24/7-dekking nie aktief nie",
+  "ops_created": "Geskep", "ops_updated": "Opgedateer", "ops_status": "Status"
 }

@@ -153,6 +153,7 @@ services:
       KC_PROXY_HEADERS: ${KEYCLOAK_PROXY_HEADERS:-xforwarded}
     volumes:
     - ./infrastructure/keycloak/safelytold-realm.json:/opt/keycloak/data/import/safelytold-realm.json:ro
+    - ./infrastructure/keycloak/themes/safelytold:/opt/keycloak/themes/safelytold:ro
     - keycloak_data:/opt/keycloak/data
     ports:
     - 8080:8080
@@ -533,6 +534,12 @@ services:
       TEMPORAL_ADDRESS: temporal:7233
       S3_ENDPOINT_URL: http://minio:9000
       OPA_URL: http://opa:8181/v1/data/safelytold/authz/decision
+      REPORTING_EMAIL_ADDRESS: ${REPORTING_EMAIL_ADDRESS:-}
+      TOLL_FREE_NUMBER: ${TOLL_FREE_NUMBER:-}
+      RECEIVING_PROVIDER_NAME: ${RECEIVING_PROVIDER_NAME:-}
+      CHANNEL_WEBHOOK_SECRET: ${CHANNEL_WEBHOOK_SECRET:-}
+      INTAKE_SERVICE_URL: http://intake-service:8014
+      REPORTER_IDENTITY_SERVICE_URL: http://reporter-identity-service:8012
     depends_on: *id001
     read_only: true
     tmpfs:
@@ -774,7 +781,7 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.worker
       args:
         WORKER_MODULE: workers.event_consumer.main
-        WORKER_EXTRAS: messaging
+        WORKER_EXTRAS: workers
     environment:
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/case
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F

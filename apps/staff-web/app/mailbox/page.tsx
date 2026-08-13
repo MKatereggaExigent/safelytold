@@ -7,19 +7,20 @@ import {
   listMailboxConcerns,
   listMailboxThread,
   replyMailboxMessage,
+  listCases,
+  type CaseView,
   type MailboxMessage,
 } from '@safelytold/ui/api';
 import { useI18n, useSession, useToast } from '@safelytold/ui/context';
-import { formatDate, useRecords } from '@safelytold/ui/hooks';
-import { CASE_STATUS_LABELS, latestCaseRecords, summarizeCase } from '../../lib/staff';
+import { formatDate } from '@safelytold/ui/hooks';
+import { CASE_STATUS_LABELS } from '../../lib/staff';
 
 export default function MailboxRoomPage() {
   const { t } = useI18n();
   const { session } = useSession();
   const { push } = useToast();
-  const { records: caseRecords } = useRecords('case');
-
-  const cases = useMemo(() => latestCaseRecords(caseRecords).map(summarizeCase), [caseRecords]);
+  const [cases,setCases]=useState<CaseView[]>([]);
+  useEffect(()=>{listCases(session).then(setCases).catch(()=>setCases([]))},[session.accessToken,session.tenantId]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MailboxMessage[]>([]);
   const [concerns, setConcerns] = useState<{ id: string; risk_band: string; details: string; status: string; created_at: string }[]>([]);
@@ -101,7 +102,7 @@ export default function MailboxRoomPage() {
                   >
                     <span className="mono">{c.id.slice(0, 12)}…</span>
                     <span className="muted" style={{ display: 'block', fontSize: '0.8rem' }}>
-                      {c.mode} · {CASE_STATUS_LABELS[c.status] ?? c.status}
+                      {c.public_reference} · {CASE_STATUS_LABELS[c.status] ?? c.status}
                     </span>
                   </button>
                 </li>
@@ -119,7 +120,7 @@ export default function MailboxRoomPage() {
             <>
               <Panel
                 title={t('mbx_thread_title')}
-                subtitle={loading ? t('mbx_loading') : `${activeCase?.mode ?? ''} · ${messages.length} message${messages.length === 1 ? '' : 's'}`}
+                subtitle={loading ? t('mbx_loading') : `${activeCase?.public_reference ?? ''} · ${messages.length} message${messages.length === 1 ? '' : 's'}`}
                 padded={false}
               >
                 {error && <div className="panel-body"><Alert tone="danger" title="Load failed">{error}</Alert></div>}
