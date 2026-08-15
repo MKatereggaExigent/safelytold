@@ -29,7 +29,7 @@ function CallbackInner() {
         const session = await completeLogin(code, state);
         if (!active) return;
         setSession(session);
-        const next = sessionStorage.getItem('wpc:oidc:next') ?? '/staff';
+        const next = sessionStorage.getItem('wpc:oidc:next') ?? '/dashboard';
         sessionStorage.removeItem('wpc:oidc:next');
         router.replace(next);
       } catch (err) {

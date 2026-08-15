@@ -8,7 +8,7 @@ const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEV_TENANT_ID ?? '00000000-000
 /** Bounded, safe grounding text. The gateway answers from this text only -
  * it never offers legal advice beyond what the platform guarantees. */
 const RIGHTS_CONTEXT = `SafelyTold privacy-preserving integrity reporting and case-management platform - reporter rights and process.
-- You can report anonymously, confidentially, or with your identity on record. In anonymous mode no one - including the platform team - can see who you are unless you choose to reveal yourself.
+- You can report anonymously, verified anonymously with an unlinkable eligibility credential, confidentially, or with your identity on record. Anonymous modes do not disclose your identity to case handlers.
 - The platform prohibits retaliation against anyone who reports in good faith.
 - Your report is handled by a trained team. The status of a report: received, under review, investigation, outcome. You are entitled to status updates.
 - Evidence you provide is kept secure and its integrity is protected. Do not provide evidence that would identify you unless you choose the confidential or identified mode.

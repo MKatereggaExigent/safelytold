@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from safelytold_common.auth import ContextDep
 from safelytold_common.db import Base, OutboxEvent, session, set_tenant
+from safelytold_common.reporting_modes import REPORTING_MODES
 
 Area = Literal['awareness', 'training', 'qa', 'continuity', 'coverage', 'hotline', 'reporting']
 
@@ -81,7 +82,7 @@ def validate_payload(area: str, status: str, payload: dict[str, Any]) -> None:
         required = {'provider_call_id', 'reporting_mode', 'language', 'started_at'}
         if missing := required.difference(payload):
             raise ValueError(f'missing hotline fields: {sorted(missing)}')
-        if payload['reporting_mode'] not in {'anonymous', 'confidential', 'identified'}:
+        if payload['reporting_mode'] not in REPORTING_MODES:
             raise ValueError('invalid reporting_mode')
         if status in {'submitted', 'escalated', 'closed'} and not payload.get('case_id'):
             raise ValueError('submitted hotline calls require case_id from normal intake')

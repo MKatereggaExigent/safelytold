@@ -9,9 +9,11 @@ import { useSession } from '@safelytold/ui/context';
 import { logoutUrl } from '../lib/auth';
 import { staffRoleLabel } from '../lib/staff';
 import { StaffLanguage } from './StaffLanguage';
+import { DEMO_TENANT_ID } from '@safelytold/ui/api';
 
-const NAV = [
+const NAV: { href: string; label: string; icon: string; roles?: string[]; demoOnly?: boolean }[] = [
   { href: '/dashboard', label: 'Dashboard', icon: '▦' },
+  { href: '/demo', label: 'Demo tour', icon: '▶', demoOnly: true },
   { href: '/cases', label: 'Cases', icon: '◉' },
   { href: '/mailbox', label: 'Mailbox', icon: '✉' },
   { href: '/evidence', label: 'Evidence', icon: '▤' },
@@ -55,7 +57,7 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
           <Logo label="Integrity workspace" />
         </Link>
         <nav id="staff-nav" className="staff-nav" aria-label="Staff">
-          {NAV.filter((item) => !item.roles || item.roles.some((role) => session.roles.includes(role))).map((item) => {
+          {NAV.filter((item) => (!item.demoOnly || session.tenantId === DEMO_TENANT_ID) && (!item.roles || item.roles.some((role) => session.roles.includes(role)))).map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link key={item.href} href={item.href} className={`staff-nav-link${active ? ' staff-nav-active' : ''}`}>
@@ -77,6 +79,12 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="staff-main">
+        {session.tenantId === DEMO_TENANT_ID && (
+          <div className="bar-banner" role="status" data-no-translate>
+            <strong>SYNTHETIC DEMONSTRATION</strong>
+            <span>Production workflows with fictional data. External integrations route to controlled sandbox providers.</span>
+          </div>
+        )}
         <header className="staff-top">
           <div className="staff-top-title">
             <button

@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, constr
 
 class ReportMode(str, Enum):
     ANONYMOUS = "anonymous"
+    VERIFIED_ANONYMOUS = "verified_anonymous"
     CONFIDENTIAL = "confidential"
     IDENTIFIED = "identified"
 

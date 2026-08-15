@@ -1,0 +1,51 @@
+version: 1
+keycloak:
+  realm: safelytold
+tenant:
+  id: d3a00000-0000-4000-8000-000000000001
+  slug: safelytold-demo
+  display_name: SafelyTold Synthetic Demonstration
+  home_region: af-south-1
+  data_classification: synthetic_only
+personas:
+  - username: demo.owner
+    display_name: Tenant Owner Demo
+    roles: [tenant_owner, tenant_admin]
+  - username: demo.case-manager
+    display_name: Case Manager Demo
+    roles: [case_manager, triage_officer]
+  - username: demo.investigator
+    display_name: Investigator Demo
+    roles: [investigator]
+  - username: demo.reviewer
+    display_name: Independent Reviewer Demo
+    roles: [reviewer, decision_maker, ombuds]
+  - username: demo.privacy
+    display_name: Privacy Officer Demo
+    roles: [privacy_officer]
+  - username: demo.protection
+    display_name: Protection Officer Demo
+    roles: [protection_officer]
+  - username: demo.support
+    display_name: Support Coordinator Demo
+    roles: [support_coordinator]
+  - username: demo.security
+    display_name: Security Analyst Demo
+    roles: [security_analyst]
+  - username: demo.auditor
+    display_name: Auditor Demo
+    roles: [auditor]
+safety:
+  production_business_logic: true
+  notification_provider: sandbox
+  hotline_provider: sandbox
+  identity_reveal: synthetic_records_only
+  exports: watermarked_synthetic
+  blockchain_provider: sandbox
+  synthetic_data_only: true
+  resettable: true
+reporting_modes:
+  - anonymous
+  - verified_anonymous
+  - confidential
+  - identified

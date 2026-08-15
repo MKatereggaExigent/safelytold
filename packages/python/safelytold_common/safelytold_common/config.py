@@ -20,6 +20,7 @@ class Settings(BaseSettings):
  intake_service_url:str="http://intake-service:8014"
  reporter_identity_service_url:str="http://reporter-identity-service:8012"
  admin_superuser_emails:str="michael.kateregga@datasqan.com"
+ demo_tenant_id:str="d3a00000-0000-4000-8000-000000000001"
  # JSON list of tenants to auto-provision on tenancy-service boot, e.g.
  # [{"id":"<stable-uuid>","slug":"example-za","display_name":"Example ZA Tenant","home_region":"za"},
  #  {"id":"<stable-uuid>","slug":"example-ca","display_name":"Example CA Tenant","home_region":"ca"}]

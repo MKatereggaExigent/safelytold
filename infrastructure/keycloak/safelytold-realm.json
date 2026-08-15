@@ -10,6 +10,40 @@
   "verifyEmail": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
+  "rememberMe": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 5184000,
+  "clientSessionIdleTimeout": 1800,
+  "clientSessionMaxLifespan": 28800,
+  "passwordPolicy": "length(14) and digits(1) and lowerCase(1) and upperCase(1) and specialChars(1) and notUsername(undefined) and passwordHistory(12) and forceExpiredPasswordChange(90)",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxTemporaryLockouts": 5,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "eventsEnabled": true,
+  "eventsExpiration": 7776000,
+  "enabledEventTypes": [
+    "LOGIN", "LOGIN_ERROR", "LOGOUT", "REGISTER_ERROR", "UPDATE_PASSWORD",
+    "UPDATE_PASSWORD_ERROR", "UPDATE_TOTP", "UPDATE_TOTP_ERROR", "REMOVE_TOTP",
+    "CODE_TO_TOKEN", "CODE_TO_TOKEN_ERROR", "REFRESH_TOKEN", "REFRESH_TOKEN_ERROR",
+    "REVOKE_GRANT", "PERMISSION_TOKEN_ERROR", "INTROSPECT_TOKEN_ERROR"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
   "requiredActions": [
     {
       "alias": "CONFIGURE_TOTP",
@@ -61,6 +95,96 @@
       },
       {
         "name": "auditor"
+      },
+      {
+        "name": "tenant_admin"
+      },
+      {
+        "name": "reviewer"
+      },
+      {
+        "name": "decision_maker"
+      },
+      {
+        "name": "protection_officer"
+      },
+      {
+        "name": "support_coordinator"
+      },
+      {
+        "name": "security_analyst"
+      },
+      {
+        "name": "platform_operations_admin",
+        "description": "Operates platform availability without access to case narratives"
+      },
+      {
+        "name": "platform_security_admin",
+        "description": "Administers security controls and incident response"
+      },
+      {
+        "name": "platform_support_admin",
+        "description": "Provides audited tenant support without standing case access"
+      },
+      {
+        "name": "billing_admin"
+      },
+      {
+        "name": "data_residency_admin"
+      },
+      {
+        "name": "tenant_configuration_admin"
+      },
+      {
+        "name": "intake_officer"
+      },
+      {
+        "name": "hotline_operator"
+      },
+      {
+        "name": "safeguarding_officer"
+      },
+      {
+        "name": "qa_reviewer"
+      },
+      {
+        "name": "training_admin"
+      },
+      {
+        "name": "reporting_analyst"
+      },
+      {
+        "name": "executive_viewer"
+      },
+      {
+        "name": "records_manager"
+      },
+      {
+        "name": "compliance_manager"
+      },
+      {
+        "name": "business_continuity_manager"
+      },
+      {
+        "name": "integration_admin"
+      },
+      {
+        "name": "notification_admin"
+      },
+      {
+        "name": "ai_governance_officer"
+      },
+      {
+        "name": "policy_admin"
+      },
+      {
+        "name": "evidence_manager"
+      },
+      {
+        "name": "external_investigator"
+      },
+      {
+        "name": "read_only_auditor"
       }
     ]
   },
@@ -68,7 +192,10 @@
     {
       "clientId": "safelytold-staff",
       "publicClient": true,
+      "consentRequired": false,
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
       "directAccessGrantsEnabled": false,
       "redirectUris": [
         "http://localhost:8100/staff/auth/callback",
@@ -85,6 +212,9 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
+        "use.refresh.tokens": "true",
+        "client.session.idle.timeout": "1800",
+        "client.session.max.lifespan": "28800",
         "post.logout.redirect.uris": "http://localhost:8100/staff/login##http://localhost:3001/staff/login##https://safelytold.com/staff/login"
       },
       "protocolMappers": [
@@ -133,6 +263,8 @@
         "https://safelytold.com"
       ],
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
       "directAccessGrantsEnabled": false
     }
   ],

@@ -18,7 +18,7 @@ router = APIRouter(prefix='/v1/channels', tags=['reporting-channels'])
 class ProviderReport(BaseModel):
     provider_event_id: str = Field(min_length=6, max_length=160)
     channel: Literal['email', 'hotline']
-    reporting_mode: Literal['anonymous', 'confidential', 'identified']
+    reporting_mode: Literal['anonymous', 'verified_anonymous', 'confidential', 'identified']
     jurisdiction_code: str = Field(default='ZA', min_length=2, max_length=8)
     taxonomy_codes: list[str] = Field(min_length=1, max_length=10)
     narrative: str = Field(min_length=10, max_length=50_000)

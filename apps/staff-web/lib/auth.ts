@@ -1,6 +1,6 @@
 'use client';
 
-import { DEV_AUTH, DEV_TENANT_ID, type Session } from '@safelytold/ui/api';
+import { DEV_AUTH, type Session } from '@safelytold/ui/api';
 
 /* ------------------------------------------------------------------ */
 /* OpenID Connect (authorization code + PKCE) against the safelytold      */
@@ -58,7 +58,7 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
 
 /** Builds the staff sign-in URL and stashes PKCE verifier + state.
  * Public self-registration is intentionally unsupported. */
-export async function beginLogin(next = '/staff'): Promise<string> {
+export async function beginLogin(next = '/dashboard'): Promise<string> {
   const verifier = randomBase64Url(64);
   const state = randomBase64Url(24);
   const challenge = await sha256Base64Url(verifier);
@@ -143,10 +143,13 @@ export function sessionFromTokens(tokens: OidcTokens): Session {
   const clientRoles = Object.values(resourceAccess).flatMap((v) => v?.roles ?? []);
   const roles = [...realmRoles, ...clientRoles].filter((r) => !r.startsWith('default-roles-'));
   const subject = (claims.sub as string) ?? 'anonymous';
+  const tenantId = claims.tenant_id as string | undefined;
+  if (!tenantId) throw new Error('Staff token is missing its tenant binding');
+  if (!roles.length) throw new Error('Staff token has no authorised SafelyTold role');
   return {
-    tenantId: (claims.tenant_id as string) ?? DEV_TENANT_ID,
+    tenantId,
     subject,
-    roles: roles.length ? roles : ['case_manager'],
+    roles,
     purpose: (claims.purpose as string) ?? 'case-management',
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,

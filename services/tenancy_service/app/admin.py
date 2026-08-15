@@ -51,6 +51,7 @@ class OrganisationalUnit(Base):
 
 
 class TenantCreate(BaseModel):
+    id: UUID | None = None
     slug: str = Field(pattern=r'^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$', max_length=64)
     display_name: str = Field(min_length=2, max_length=200)
     tenancy_tier: str = Field(default='shared_database', pattern='^(shared_database|dedicated_database|dedicated_data_plane|customer_environment)$')
@@ -116,6 +117,7 @@ async def create_tenant(body: TenantCreate, _: SuperuserDep, database: AsyncSess
     if existing is not None:
         raise HTTPException(409, f'Tenant slug already in use: {body.slug}')
     row = Tenant(
+        id=body.id or uuid4(),
         slug=body.slug,
         display_name=body.display_name,
         tenancy_tier=body.tenancy_tier,

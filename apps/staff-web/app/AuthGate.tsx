@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from '@safelytold/ui/context';
 import { isSessionValid, refreshTokens, sessionFromTokens } from '../lib/auth';
 import { StaffShell } from './StaffShell';
@@ -9,6 +10,7 @@ import { LoginScreen } from './LoginScreen';
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { session, setSession } = useSession();
   const refreshing = useRef(false);
 
@@ -32,8 +34,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }, [session, setSession]);
 
   const isAuthRoute = pathname === '/login' || pathname === '/auth/callback';
-  if (isAuthRoute) return <>{children}</>;
   const authed = isSessionValid(session);
+  useEffect(() => {
+    if (!isAuthRoute && !authed) router.replace('/login');
+  }, [authed, isAuthRoute, router]);
+  if (isAuthRoute) return <>{children}</>;
   if (!authed) return <LoginScreen />;
   return <StaffShell>{children}</StaffShell>;
 }

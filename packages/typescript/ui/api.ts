@@ -17,6 +17,7 @@ export const GATEWAY_BASE = (
 export const DEV_AUTH = (process.env.NEXT_PUBLIC_DEV_AUTH ?? 'false') === 'true';
 export const DEV_TENANT_ID =
   process.env.NEXT_PUBLIC_DEV_TENANT_ID ?? '00000000-0000-0000-0000-000000000001';
+export const DEMO_TENANT_ID = 'd3a00000-0000-4000-8000-000000000001';
 
 export type ServiceSlug =
   | 'tenancy'

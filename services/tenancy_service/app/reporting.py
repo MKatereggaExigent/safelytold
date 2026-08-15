@@ -108,7 +108,7 @@ async def resolve_reporting_entry(body: ReportingEntry, database: AsyncSession =
     if policy is None:
         if body.channel != 'open':
             raise HTTPException(404, 'Reporting channel not found')
-        modes = ['anonymous', 'confidential', 'identified']
+        modes = ['anonymous', 'verified_anonymous', 'confidential', 'identified']
         eligibility_requirement = 'none'
         channel_name = 'Open reporting'
     else:

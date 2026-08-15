@@ -1,6 +1,16 @@
 import pytest
 
 from services.integration_service.app.operations import transition_allowed, validate_payload
+from safelytold_common.reporting_modes import REPORTING_MODES
+
+
+def test_all_four_reporting_modes_are_canonical_and_valid_for_hotline_intake() -> None:
+    assert REPORTING_MODES == {'anonymous', 'verified_anonymous', 'confidential', 'identified'}
+    for mode in REPORTING_MODES:
+        validate_payload('hotline', 'received', {
+            'provider_call_id': f'call-{mode}', 'reporting_mode': mode,
+            'language': 'en-ZA', 'started_at': 'now',
+        })
 
 
 def test_hotline_metadata_rejects_reporter_data() -> None:
