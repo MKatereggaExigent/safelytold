@@ -6,7 +6,7 @@ This inventory maps every major component in the product and architecture propos
 
 | Proposal component | Repository |
 |---|---|
-| Anonymous/confidential/identified reporting | `apps/reporter-web`, `services/intake_service` |
+| Anonymous/verified-anonymous/confidential/identified reporting | `apps/reporter-web`, `services/intake_service` |
 | Private journal / save-before-submit concept | `services/intake_service` extension point |
 | Protected two-way mailbox | `apps/reporter-web/app/mailbox`, `services/mailbox_service` |
 | Staff triage and case workbench | `apps/staff-web`, `services/case_service` |

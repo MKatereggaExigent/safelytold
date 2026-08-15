@@ -6,7 +6,7 @@ import { TrustHeader } from './TrustHeader';
 import { PageShell } from './PageShell';
 
 export const metadata: Metadata = {
-  title: 'Workplace Integrity Trust Centre',
+  title: 'SafelyTold Trust Centre',
   description: 'Public product principles, privacy commitments, aggregate transparency and support resources.',
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <PageShell>{children}</PageShell>
           <footer className="site-footer">
             <div className="site-footer-inner">
-              <span>Workplace Integrity · Trust Centre</span>
+              <span>SafelyTold · Integrity Trust Centre</span>
               <span>No adverse decisions by AI · Not an emergency service</span>
             </div>
           </footer>

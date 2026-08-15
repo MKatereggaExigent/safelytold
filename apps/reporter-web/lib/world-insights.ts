@@ -31,7 +31,7 @@ export const ROOT_CAUSES: RankedInsight[] = [
 ];
 
 export const COMMON_REMEDIES: RankedInsight[] = [
-  { rank: 1, key: 'wi_rem_1', label: 'Independent, confidential channels', noteKey: 'wi_rem_1_note', note: 'Multiple entry points — anonymous, confidential and identified.' },
+  { rank: 1, key: 'wi_rem_1', label: 'Independent, confidential channels', noteKey: 'wi_rem_1_note', note: 'Multiple entry points — anonymous, verified anonymous, confidential and identified.' },
   { rank: 2, key: 'wi_rem_2', label: 'Clear anti-retaliation safeguards', noteKey: 'wi_rem_2_note', note: 'Protection plans and follow-up reduce fear and increase reporting.' },
   { rank: 3, key: 'wi_rem_3', label: 'Visible case timelines and feedback', noteKey: 'wi_rem_3_note', note: 'Reporters who hear back feel the process was fair.' },
   { rank: 4, key: 'wi_rem_4', label: 'Upstander and bystander training', noteKey: 'wi_rem_4_note', note: 'Builds a culture where peers challenge unacceptable conduct.' },

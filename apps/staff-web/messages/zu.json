@@ -9,5 +9,7 @@
   "ops_transition": "Yisa esimweni esilandelayo", "ops_target": "Isimo okuhlosiwe", "ops_evidence": "Ubufakazi bokushintsha (JSON)",
   "ops_apply": "Sebenzisa ushintsho", "ops_invalid_json": "Faka idatha ye-JSON evumelekile.", "ops_saved": "Irekhodi lokusebenza ligciniwe.",
   "ops_failed": "Isenzo sokusebenza sehlulekile.", "ops_coverage_ready": "Ukumbozwa kuka-24/7 kuyasebenza", "ops_coverage_gap": "Ukumbozwa kuka-24/7 akusebenzi",
-  "ops_created": "Kudaliwe", "ops_updated": "Kubuyekeziwe", "ops_status": "Isimo"
+  "ops_created": "Kudaliwe", "ops_updated": "Kubuyekeziwe", "ops_status": "Isimo",
+  "lang_label": "Ulimi", "lang_other": "Olunye ulimi…", "lang_translating": "Kuyahunyushwa…",
+  "lang_placeholder": "Igama noma ikhodi yolimi", "lang_apply": "Humusha", "lang_failed": "Ukuhumusha akutholakali okwamanje."
 }

@@ -39,6 +39,16 @@ export function listTenants(session: Session): Promise<TenantView[]> {
   return apiFetch('tenancy', '/v1/admin/tenants', { session: adminSession(session) });
 }
 
+export interface PlatformArchitecture {
+  title: string;
+  summary: string;
+  lifecycle: { stage: string; capabilities: string[] }[];
+}
+
+export function getPlatformArchitecture(session: Session): Promise<PlatformArchitecture> {
+  return apiFetch('tenancy', '/v1/admin/platform-architecture', { session: adminSession(session) });
+}
+
 export function createTenant(
   body: { slug: string; display_name: string; home_region: string },
   session: Session,
@@ -48,6 +58,19 @@ export function createTenant(
     body,
     session: adminSession(session),
   });
+}
+
+export interface AssuranceControlView {
+  id: string;
+  name: string;
+  status: 'enforced' | 'partially_enforced' | 'not_deployed';
+  claim: string;
+  verification: string;
+  evidence: string[];
+}
+
+export function listAssuranceControls(session: Session): Promise<AssuranceControlView[]> {
+  return apiFetch('tenancy', '/v1/admin/assurance/controls', { session: adminSession(session) });
 }
 
 export interface LegalEntityView {

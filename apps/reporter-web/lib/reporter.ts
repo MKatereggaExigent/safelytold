@@ -6,14 +6,45 @@ export const JURISDICTIONS = [
   { value: 'GLOBAL', key: 'jur_GLOBAL', label: 'Global / other' },
 ];
 
+export const TAXONOMY_GROUPS = [
+  { value: 'fraud_financial_crime', label: 'Fraud and financial crime', items: [
+    ['fraud', 'Fraud'], ['theft', 'Theft'], ['bribery', 'Bribery'], ['procurement_irregularity', 'Procurement irregularity'], ['money_laundering', 'Money laundering'], ['expense_fraud', 'Expense fraud'],
+  ] },
+  { value: 'people_workplace_conduct', label: 'People and workplace conduct', items: [
+    ['bullying', 'Bullying'], ['harassment', 'Harassment'], ['sexual_harassment', 'Sexual harassment'], ['discrimination', 'Discrimination'], ['racism', 'Racism'], ['favouritism', 'Favouritism'], ['nepotism', 'Nepotism'], ['intimidation', 'Intimidation'],
+  ] },
+  { value: 'workplace_fairness', label: 'Workplace fairness', items: [
+    ['unfair_disciplinary_action', 'Unfair disciplinary action'], ['unfair_labour_practice', 'Unfair labour practice'], ['promotion_irregularity', 'Promotion irregularity'], ['performance_management_abuse', 'Performance-management abuse'], ['retaliation', 'Retaliation'], ['victimisation', 'Victimisation'], ['hr_matters', 'Human resources matters'],
+  ] },
+  { value: 'governance', label: 'Governance', items: [
+    ['conflict_of_interest', 'Conflict of interest'], ['policy_breach', 'Policy breach'], ['abuse_of_authority', 'Abuse of authority'], ['inappropriate_conduct', 'Inappropriate conduct'], ['unethical_business_practice', 'Unethical business practice'], ['misconduct', 'Misconduct'],
+  ] },
+  { value: 'safety', label: 'Safety', items: [
+    ['health_and_safety', 'Health and safety'], ['violence', 'Violence'], ['unsafe_working_conditions', 'Unsafe working conditions'], ['working_conditions', 'Working conditions'],
+  ] },
+  { value: 'public_interest', label: 'Public interest', items: [
+    ['corruption', 'Corruption'], ['service_delivery', 'Service delivery'], ['environment', 'Environment'], ['public_infrastructure', 'Public infrastructure'],
+  ] },
+] as const;
+
 export const TAXONOMY = [
+  ...TAXONOMY_GROUPS.flatMap((group) => group.items.map(([value, label]) => ({ value, key: `tax_${value}`, label, domain: group.value }))),
+  // Legacy categories stay readable for reports created before the ontology.
   { value: 'bullying_harassment', key: 'tax_bullying', label: 'Bullying or harassment' },
-  { value: 'discrimination', key: 'tax_discrimination', label: 'Discrimination' },
-  { value: 'retaliation', key: 'tax_retaliation', label: 'Retaliation for raising a concern' },
   { value: 'fraud_abuse', key: 'tax_fraud', label: 'Fraud or abuse of authority' },
   { value: 'safety', key: 'tax_safety', label: 'Health or safety risk' },
   { value: 'integrity', key: 'tax_integrity', label: 'Other integrity concern' },
 ];
+
+export const REPORTER_TYPES = [
+  { value: 'employee', label: 'Employee' },
+  { value: 'contractor', label: 'Contractor' },
+  { value: 'former_employee', label: 'Former employee' },
+  { value: 'supplier', label: 'Supplier' },
+  { value: 'customer', label: 'Customer' },
+  { value: 'anonymous_witness', label: 'Anonymous witness' },
+  { value: 'other', label: 'Other relationship' },
+] as const;
 
 export const IMPACT_CATEGORIES = [
   { value: 'physical_safety', key: 'imp_physical', label: 'Physical safety at risk' },
@@ -45,6 +76,15 @@ export const REPORT_MODES = [
     title: 'Anonymous',
     badge: 'No identity required',
     description: 'Receive a random case code and a separate secret. The platform cannot link the report back to you.',
+  },
+  {
+    value: 'verified_anonymous',
+    key: 'mode_verified_anonymous',
+    badgeKey: 'mode_verified_anon_badge',
+    descKey: 'mode_verified_anon_desc',
+    title: 'Verified anonymous',
+    badge: 'Eligibility proven, identity not retained',
+    description: 'Available on restricted organisation channels after an unlinkable eligibility credential is redeemed.',
   },
   {
     value: 'confidential',

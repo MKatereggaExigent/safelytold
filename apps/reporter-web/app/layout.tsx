@@ -12,7 +12,7 @@ import { PageShell } from './PageShell';
 
 export const metadata: Metadata = {
   title: 'Speak safely. Stay in control.',
-  description: 'Anonymous and confidential workplace reporting, a protected mailbox, a private journal and trusted support.',
+  description: 'Privacy-preserving integrity reporting, protected case management, an anonymous mailbox and trusted support.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

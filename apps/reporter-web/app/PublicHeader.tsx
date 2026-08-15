@@ -13,6 +13,7 @@ const LINKS = [
   { href: '/', key: 'nav_home' },
   { href: '/control-room', key: 'nav_control_room' },
   { href: '/trust', key: 'nav_trust' },
+  { href: '/pricing', key: 'nav_pricing' },
 ];
 
 const STATIC_LOCALES = ['en', 'af', 'zu'];

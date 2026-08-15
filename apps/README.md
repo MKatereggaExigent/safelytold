@@ -2,7 +2,7 @@
 
 Three independently deployable Next.js applications reduce accidental data crossover:
 
-- **reporter-web**: anonymous/confidential/identified intake and two-way mailbox.
+- **reporter-web**: anonymous/verified-anonymous/confidential/identified intake and two-way mailbox.
 - **staff-web**: authorised triage, investigation, protection, privacy and audit workbench.
 - **trust-center-web**: public transparency, policies, aggregate metrics and support resources.
 

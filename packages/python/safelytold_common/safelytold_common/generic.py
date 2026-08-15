@@ -14,10 +14,11 @@ class Create(BaseModel):kind:str=Field(min_length=1,max_length=80);payload:dict[
 class View(BaseModel):
  model_config=ConfigDict(from_attributes=True);id:UUID;tenant_id:UUID;kind:str;status:str;payload:dict[str,Any]
 EventPayloadBuilder=Callable[[dict[str,Any]],dict[str,Any]]
-def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozenset(),event_payload:EventPayloadBuilder|None=None):
+def router(slug:str,event_type:str|None=None,public_kinds:frozenset[str]=frozenset(),event_payload:EventPayloadBuilder|None=None,create_enabled:bool=True):
  r=APIRouter(prefix="/v1/records",tags=[slug])
  @r.post("",response_model=View)
  async def create(b:Create,c:OptionalContextDep,s:AsyncSession=Depends(session)):
+  if not create_enabled:raise HTTPException(405,"Record creation is disabled for this service")
   if c is None:
    if b.kind not in public_kinds:raise HTTPException(401,"Authentication required")
    tenant_id=UUID(settings().public_tenant_id)

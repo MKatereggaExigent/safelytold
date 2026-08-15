@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import DateTime, JSON, String, UniqueConstraint, select
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from safelytold_common.auth import ContextDep
 from safelytold_common.db import Base, OutboxEvent, TenantMixin, session, set_tenant
 from safelytold_common.service import create_app
+from safelytold_common.taxonomy import validate_concern_categories
 
 router = APIRouter(prefix='/v1/cases', tags=['cases'])
 CASE_TRANSITIONS = {
@@ -75,6 +76,11 @@ class Transition(BaseModel):
 
 class AllegationCreate(BaseModel):
     taxonomy_code: str = Field(min_length=2, max_length=80)
+
+    @field_validator('taxonomy_code')
+    @classmethod
+    def validate_taxonomy_code(cls, value: str) -> str:
+        return validate_concern_categories([value])[0]
 
 
 class ConflictCreate(BaseModel):

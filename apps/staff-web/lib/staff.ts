@@ -1,18 +1,35 @@
 import type { Session } from '@safelytold/ui/api';
 
 export const STAFF_ROLES = [
+  { value: 'platform_developer', label: 'Platform developer' },
+  { value: 'platform_super_admin', label: 'Platform administrator' },
+  { value: 'tenant_admin', label: 'Organisation administrator' },
+  { value: 'tenant_owner', label: 'Organisation owner' },
   { value: 'triage_officer', label: 'Triage officer' },
   { value: 'case_manager', label: 'Case manager' },
   { value: 'investigator', label: 'Investigator' },
+  { value: 'reviewer', label: 'Case reviewer' },
+  { value: 'decision_maker', label: 'Decision maker' },
   { value: 'legal_counsel', label: 'Legal counsel' },
   { value: 'dpo', label: 'DPO / privacy officer' },
+  { value: 'privacy_officer', label: 'Privacy officer' },
+  { value: 'protection_officer', label: 'Protection officer' },
+  { value: 'support_coordinator', label: 'Support coordinator' },
+  { value: 'security_analyst', label: 'Security analyst' },
   { value: 'ethics_administrator', label: 'Ethics administrator' },
+  { value: 'ethics_admin', label: 'Ethics administrator' },
   { value: 'board_delegate', label: 'Ombuds / board delegate' },
+  { value: 'ombuds', label: 'Ombuds' },
+  { value: 'auditor', label: 'Auditor' },
 ] as const;
 
 export const STAFF_ROLE_LABEL: Record<string, string> = Object.fromEntries(
   STAFF_ROLES.map((r) => [r.value, r.label]),
 );
+
+export function staffRoleLabel(role: string): string {
+  return STAFF_ROLE_LABEL[role] ?? role.replace(/[_-]+/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+}
 
 export const PURPOSES = [
   'development',
@@ -31,7 +48,7 @@ export function staffSession(role: string, purpose: string, displayName: string)
     subject: `staff-${role}-${displayName.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'user'}`,
     roles: [role],
     purpose,
-    displayName: displayName || (STAFF_ROLE_LABEL[role] ?? role),
+    displayName: displayName || staffRoleLabel(role),
   };
 }
 

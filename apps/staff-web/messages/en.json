@@ -53,5 +53,11 @@
   "ops_coverage_gap": "24/7 coverage not active",
   "ops_created": "Created",
   "ops_updated": "Updated",
-  "ops_status": "Status"
+  "ops_status": "Status",
+  "lang_label": "Language",
+  "lang_other": "Other language…",
+  "lang_translating": "Translating…",
+  "lang_placeholder": "Language name or code",
+  "lang_apply": "Translate",
+  "lang_failed": "Translation is temporarily unavailable."
 }

@@ -16,6 +16,9 @@ export function SiteFooter() {
           <span>
             {t('layout_no_ai')} · <Link href="/emergency">{t('layout_not_emergency')}</Link>
           </span>
+          <span>
+            <Link href="/pricing">For organisations</Link> · <a href="mailto:sales@datasqan.com">sales@datasqan.com</a> · <a href="tel:+27686159700">+27 68 615 9700</a>
+          </span>
         </div>
       </footer>
     </>

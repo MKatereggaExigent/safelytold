@@ -53,7 +53,7 @@ class OrganisationalUnit(Base):
 class TenantCreate(BaseModel):
     slug: str = Field(pattern=r'^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$', max_length=64)
     display_name: str = Field(min_length=2, max_length=200)
-    tenancy_tier: str = Field(default='shared_database', pattern='^shared_database$')
+    tenancy_tier: str = Field(default='shared_database', pattern='^(shared_database|dedicated_database|dedicated_data_plane|customer_environment)$')
     home_region: str = Field(min_length=2, max_length=40)
 
 
@@ -131,6 +131,24 @@ async def create_tenant(body: TenantCreate, _: SuperuserDep, database: AsyncSess
 async def list_tenants(_: SuperuserDep, database: AsyncSession = Depends(session)) -> list[TenantView]:
     rows = list(await database.scalars(select(Tenant).order_by(Tenant.created_at.desc()).limit(500)))
     return [_tenant_view(r) for r in rows]
+
+
+@router.get('/platform-architecture')
+async def platform_architecture(_: SuperuserDep) -> dict[str, object]:
+    """Return non-public product architecture to verified platform owners."""
+    return {
+        'title': 'An integrity reporting and case-management operating system—not merely a hotline.',
+        'summary': 'SafelyTold covers prevention, reporting, fair case handling, reporter protection, resolution and accountable organisational learning.',
+        'lifecycle': [
+            {'stage': 'Before wrongdoing', 'capabilities': ['Policy awareness', 'Culture signals', 'Safe reporting channels']},
+            {'stage': 'Report', 'capabilities': ['Anonymous', 'Verified anonymous', 'Confidential', 'Identified']},
+            {'stage': 'Triage', 'capabilities': ['Conflict detection', 'Severity assessment', 'Jurisdiction', 'Safeguarding']},
+            {'stage': 'Case management', 'capabilities': ['Evidence', 'Investigators', 'Deadlines', 'Escalation', 'Procedural fairness']},
+            {'stage': 'Reporter protection', 'capabilities': ['Anonymous follow-up', 'Retaliation monitoring', 'Protection measures']},
+            {'stage': 'Resolution', 'capabilities': ['Outcome', 'Remediation', 'Appeal and review', 'Audit trail']},
+            {'stage': 'Organisation intelligence', 'capabilities': ['Recurring units and roles', 'Systemic patterns', 'Unresolved risks', 'Case-handling performance', 'Board governance']},
+        ],
+    }
 
 
 @router.get('/tenants/{tenant_id}', response_model=TenantView)

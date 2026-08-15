@@ -350,6 +350,63 @@ export function createReporterHandle(caseId: string): Promise<CreatedHandle> {
   });
 }
 
+export interface ReportingContext {
+  organisation: { slug: string; display_name: string };
+  channel: string;
+  eligibility_class: string;
+  allowed_modes: string[];
+  reporting_session: string;
+  expires_at: string;
+}
+
+export interface SalesPlan {
+  code: string;
+  name: string;
+  employee_min: number | null;
+  employee_max: number | null;
+  monthly_equivalent: number;
+  monthly_max?: number;
+  annual_price: number | null;
+  setup_fee: number;
+  price_from: boolean;
+  custom_annual?: boolean;
+  required_isolation?: string;
+  currency: 'ZAR';
+  vat_included: false;
+  billing_term: 'annual';
+  core_privacy_controls: string[];
+  enterprise_capabilities: string[];
+}
+
+export interface SalesCatalogue {
+  plans: SalesPlan[];
+  sales_contact: { email: string; phone: string };
+}
+
+export function getSalesCatalogue(): Promise<SalesCatalogue> {
+  return apiFetch('tenancy', '/v1/sales/plans', { session: null });
+}
+
+export function resolveReportingContext(organisation: string, channel = 'open'): Promise<ReportingContext> {
+  return apiFetch('tenancy', '/v1/reporting/resolve', {
+    method: 'POST', body: { organisation, channel }, session: null,
+  });
+}
+
+export function createTenantReport(payload: Record<string, unknown>, reportingSession: string): Promise<RecordView> {
+  return apiFetch('intake', '/v1/reports', {
+    method: 'POST', body: { kind: 'report', payload }, session: null,
+    headers: { authorization: `Bearer ${reportingSession}` },
+  });
+}
+
+export function createTenantReporterHandle(caseId: string, reportingSession: string): Promise<CreatedHandle> {
+  return apiFetch('reporter-identity', '/v1/reporter/handles', {
+    method: 'POST', body: { case_id: caseId }, session: null,
+    headers: { authorization: `Bearer ${reportingSession}` },
+  });
+}
+
 export function reporterSession(
   publicCode: string,
   recoverySecret: string,
@@ -361,11 +418,12 @@ export function reporterSession(
   });
 }
 
-export function storeVaultIdentity(caseId: string, identity: Record<string, unknown>): Promise<{ identity_ref: string; case_id: string; status: string }> {
+export function storeVaultIdentity(caseId: string, identity: Record<string, unknown>, reportingSession?: string): Promise<{ identity_ref: string; case_id: string; status: string }> {
   return apiFetch('reporter-identity', '/v1/reporter/vault-identities', {
     method: 'POST',
     body: { case_id: caseId, identity },
     session: null,
+    headers: reportingSession ? { authorization: `Bearer ${reportingSession}` } : {},
   });
 }
 

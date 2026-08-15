@@ -26,6 +26,12 @@ def assess() -> list[str]:
     actual = {path.name for path in (STAFF / 'app').iterdir() if path.is_dir()}
     for route in sorted(required_routes - actual):
         errors.append(f'apps/staff-web/app/{route}: required staff route missing')
+    shell = (STAFF / 'app' / 'StaffShell.tsx').read_text(encoding='utf-8')
+    translator = STAFF / 'app' / 'StaffLanguage.tsx'
+    if not translator.exists() or '<StaffLanguage />' not in shell:
+        errors.append('apps/staff-web: staff-wide language translation control missing')
+    elif "const EXCLUDED='td,.mono,.chat,pre,code,[data-no-translate]" not in translator.read_text(encoding='utf-8'):
+        errors.append('apps/staff-web: translation does not protect operational/evidentiary content')
     return errors
 
 

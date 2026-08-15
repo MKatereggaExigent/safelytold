@@ -9,5 +9,7 @@
   "ops_transition": "Skuif na volgende status", "ops_target": "Teikenstatus", "ops_evidence": "Oorgangsbewyse (JSON)",
   "ops_apply": "Pas oorgang toe", "ops_invalid_json": "Voer geldige JSON-objekdata in.", "ops_saved": "Bedryfsrekord gestoor.",
   "ops_failed": "Die werkvloeiaksie het misluk.", "ops_coverage_ready": "24/7-dekking aktief", "ops_coverage_gap": "24/7-dekking nie aktief nie",
-  "ops_created": "Geskep", "ops_updated": "Opgedateer", "ops_status": "Status"
+  "ops_created": "Geskep", "ops_updated": "Opgedateer", "ops_status": "Status",
+  "lang_label": "Taal", "lang_other": "Ander taal…", "lang_translating": "Vertaal tans…",
+  "lang_placeholder": "Taalnaam of kode", "lang_apply": "Vertaal", "lang_failed": "Vertaling is tydelik nie beskikbaar nie."
 }

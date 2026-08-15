@@ -7,7 +7,8 @@ import { Logo, ThemeToggle } from '@safelytold/ui/components';
 import { useGatewayHealth } from '@safelytold/ui/hooks';
 import { useSession } from '@safelytold/ui/context';
 import { logoutUrl } from '../lib/auth';
-import { STAFF_ROLE_LABEL } from '../lib/staff';
+import { staffRoleLabel } from '../lib/staff';
+import { StaffLanguage } from './StaffLanguage';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: '▦' },
@@ -19,6 +20,8 @@ const NAV = [
   { href: '/analytics', label: 'Analytics', icon: '◮' },
   { href: '/operations', label: 'Operations', icon: '◎' },
   { href: '/admin', label: 'Admin', icon: '⚙' },
+  { href: '/architecture', label: 'Platform architecture', icon: '⌘', roles: ['platform_super_admin'] },
+  { href: '/admin/assurance', label: 'Assurance register', icon: '◫', roles: ['platform_super_admin'] },
   { href: '/identity', label: 'Identity & access', icon: '◇', roles: ['tenant_admin', 'platform_super_admin'] },
   { href: '/security', label: 'Security monitoring', icon: '◆', roles: ['security_analyst', 'platform_super_admin'] },
   { href: '/privacy', label: 'Privacy room', icon: '◉' },
@@ -65,7 +68,7 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
         <div className="staff-side-foot">
           <div className="staff-session">
             <strong>{session.displayName ?? session.roles[0]}</strong>
-            <span>{STAFF_ROLE_LABEL[session.roles[0]] ?? session.roles[0]} · {session.purpose}</span>
+            <span>{staffRoleLabel(session.roles[0])} · {session.purpose}</span>
           </div>
           <div className="staff-health">
             <span className={`health-dot ${health ? 'health-ok' : 'health-down'}`} aria-hidden />
@@ -87,11 +90,12 @@ export function StaffShell({ children }: { children: React.ReactNode }) {
               <span aria-hidden>☰</span>
             </button>
             <Link href="/dashboard" className="staff-home-link">Staff portal</Link>
-            <span className="staff-role-tag">{STAFF_ROLE_LABEL[session.roles[0]] ?? session.roles[0]}</span>
+            <span className="staff-role-tag">{staffRoleLabel(session.roles[0])}</span>
           </div>
           <div className="row" style={{ gap: 10 }}>
+            <StaffLanguage />
             <Link href="/report" className="btn btn-primary btn-sm" target="_blank" rel="noreferrer">HELP ME</Link>
-            <Link href="/staff" className="btn btn-ghost btn-sm">Switch role</Link>
+            <Link href="/" className="btn btn-ghost btn-sm">Switch role</Link>
             <button type="button" className="btn btn-ghost btn-sm" onClick={signOut}>Sign out</button>
             <ThemeToggle />
           </div>

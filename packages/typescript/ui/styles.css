@@ -595,6 +595,17 @@ p {
   padding: 20px 22px;
 }
 
+/* Unpadded panels are used for edge-to-edge tables and lists. Keep those
+   elements full width while giving their headings and ordinary content a
+   consistent inset from the card boundary. */
+.panel:not(.panel-padded) > .panel-head {
+  padding: 20px 22px 0;
+}
+
+.panel-body {
+  padding: 16px 18px;
+}
+
 .panel-head {
   display: flex;
   align-items: flex-start;

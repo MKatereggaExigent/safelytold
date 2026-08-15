@@ -19,6 +19,7 @@ from safelytold_common.config import settings
 from safelytold_common.db import Base, session
 from safelytold_common.ids import public_case_code, recovery_secret
 from safelytold_common.reporter_auth import create_reporter_token
+from safelytold_common.reporter_access import ReporterAccessDep
 from safelytold_common.service import create_app
 
 from .crypto import decrypt_identity, encrypt_identity
@@ -126,10 +127,10 @@ def _expire_if_needed(request: VaultAccessRequest, now: datetime) -> None:
 
 
 @router.post('/handles', response_model=CreatedHandle)
-async def create_handle(body: CreateHandle, context: OptionalContextDep, database: AsyncSession = Depends(session)) -> CreatedHandle:
+async def create_handle(body: CreateHandle, access: ReporterAccessDep, database: AsyncSession = Depends(session)) -> CreatedHandle:
     code = public_case_code()
     secret = recovery_secret()
-    tenant_id = context.tenant_id if context is not None else UUID(settings().public_tenant_id)
+    tenant_id = access.tenant_id
     database.add(
         Handle(
             case_id=body.case_id,
@@ -165,7 +166,10 @@ async def login(body: Login, database: AsyncSession = Depends(session)) -> dict[
 
 
 @router.post('/vault-identities', status_code=201)
-async def store_identity(body: StoreIdentity, database: AsyncSession = Depends(session)) -> dict[str, str]:
+async def store_identity(body: StoreIdentity, access: ReporterAccessDep, database: AsyncSession = Depends(session)) -> dict[str, str]:
+    handle = await database.scalar(select(Handle).where(Handle.case_id == body.case_id, Handle.tenant_id == access.tenant_id))
+    if handle is None:
+        raise HTTPException(404, 'Reporter handle not found for this organisation')
     existing = await database.scalar(select(VaultIdentity).where(VaultIdentity.case_id == body.case_id))
     if existing is not None:
         raise HTTPException(409, 'Identity already stored for case')

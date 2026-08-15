@@ -11,6 +11,7 @@ class Settings(BaseSettings):
  jwt_issuer:str="http://keycloak:8080/realms/safelytold"; jwt_audience:str="safelytold-api"
  dev_auth_bypass:bool=False; dev_tenant_id:str="00000000-0000-0000-0000-000000000001"
  public_tenant_id:str="00000000-0000-0000-0000-000000000001"
+ reporter_jwt_secret:str=""
  blockchain_anchor_token:str=""
  reporting_email_address:str=""
  toll_free_number:str=""

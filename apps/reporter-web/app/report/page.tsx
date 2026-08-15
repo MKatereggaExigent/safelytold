@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -18,14 +18,16 @@ import {
   Stepper,
   Textarea,
 } from '@safelytold/ui/components';
-import { createRecord, createReporterHandle, storeVaultIdentity, runAi, type AiRunResult } from '@safelytold/ui/api';
+import { createTenantReport, createTenantReporterHandle, resolveReportingContext, storeVaultIdentity, runAi, type AiRunResult, type ReportingContext } from '@safelytold/ui/api';
 import { useI18n, useToast } from '@safelytold/ui/context';
 import { encryptString, generateRandomKey, exportKeyBase64 } from '@safelytold/ui/crypto';
 import {
   IMPACT_CATEGORIES,
   JURISDICTIONS,
   REPORT_MODES,
+  REPORTER_TYPES,
   TAXONOMY,
+  TAXONOMY_GROUPS,
   storeReporterCase,
 } from '../../lib/reporter';
 
@@ -37,15 +39,17 @@ function detectPii(text: string) {
 
 function ReportPageInner() {
   const searchParams = useSearchParams();
-  const initialMode = (searchParams.get('mode') as 'anonymous' | 'confidential' | 'identified') ?? 'anonymous';
+  const initialMode = (searchParams.get('mode') as 'anonymous' | 'verified_anonymous' | 'confidential' | 'identified') ?? 'anonymous';
+  const organisationSlug = searchParams.get('organisation') ?? '';
   const { push } = useToast();
   const { t } = useI18n();
 
   const steps = [t('rpt_step_mode'), t('rpt_step_details'), t('rpt_step_narrative'), t('rpt_step_review'), t('rpt_step_receipt')];
 
   const [step, setStep] = useState(0);
-  const [mode, setMode] = useState(initialMode);
+  const [mode, setMode] = useState<string>(initialMode);
   const [category, setCategory] = useState('');
+  const [reporterType, setReporterType] = useState('employee');
   const [jurisdiction, setJurisdiction] = useState('ZA');
   const [immediateRisk, setImmediateRisk] = useState(false);
   const [preservation, setPreservation] = useState(false);
@@ -57,7 +61,10 @@ function ReportPageInner() {
   const [contactInfo, setContactInfo] = useState('');
   const [narrative, setNarrative] = useState('');
   const [saveToJournal, setSaveToJournal] = useState(false);
-  const [receipt, setReceipt] = useState<{ caseId: string; code: string; secret: string } | null>(null);
+  const [receipt, setReceipt] = useState<{
+    caseId: string; code: string; secret: string;
+    privacy: Record<string, string | boolean>;
+  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scan, setScan] = useState<AiRunResult | null>(null);
@@ -71,6 +78,24 @@ function ReportPageInner() {
   const [legalCitations, setLegalCitations] = useState<Array<{ citation: string; excerpt: string }>>([]);
   const [legalLoading, setLegalLoading] = useState(false);
   const [legalError, setLegalError] = useState<string | null>(null);
+  const [organisation, setOrganisation] = useState(organisationSlug);
+  const [reportingContext, setReportingContext] = useState<ReportingContext | null>(null);
+  const [resolvingOrganisation, setResolvingOrganisation] = useState(Boolean(organisationSlug));
+  const [organisationError, setOrganisationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!organisationSlug) return;
+    setResolvingOrganisation(true);
+    resolveReportingContext(organisationSlug)
+      .then(setReportingContext)
+      .catch((err) => setOrganisationError(err instanceof Error ? err.message : 'Organisation not found'))
+      .finally(() => setResolvingOrganisation(false));
+  }, [organisationSlug]);
+
+  function openOrganisation() {
+    const slug = organisation.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+    if (slug) window.location.assign(`/report?organisation=${encodeURIComponent(slug)}`);
+  }
 
   const pii = useMemo(() => detectPii(narrative), [narrative]);
 
@@ -120,6 +145,10 @@ function ReportPageInner() {
 
   async function submit() {
     setError(null);
+    if (!reportingContext) {
+      setError('Choose a valid reporting organisation before submitting.');
+      return;
+    }
     if (!category || narrative.trim().length < 20) {
       setError(t('rpt_err_choose_category'));
       return;
@@ -136,11 +165,10 @@ function ReportPageInner() {
         preservation_requests: preservation ? ['preserve_related_materials'] : [],
         created_at: new Date().toISOString(),
       };
-      const record = await createRecord(
-        'intake',
-        'report',
+      const record = await createTenantReport(
         {
           mode,
+          reporter_type: reporterType,
           jurisdiction_code: jurisdiction,
           taxonomy_codes: [category],
           immediate_risk: immediateRisk,
@@ -148,18 +176,17 @@ function ReportPageInner() {
           narrative,
           development_readable_copy: true,
           questionnaire,
-          contact_vaulted: mode !== 'anonymous' && Boolean(contactName || contactInfo),
+          contact_vaulted: ['confidential', 'identified'].includes(mode) && Boolean(contactName || contactInfo),
           saved_to_journal: journalCopied,
           created_at: new Date().toISOString(),
-        },
-        null,
+        }, reportingContext.reporting_session,
       );
 
-      const handle = await createReporterHandle(record.id);
+      const handle = await createTenantReporterHandle(record.id, reportingContext.reporting_session);
       const caseId = record.id;
-      if (mode !== 'anonymous' && (contactName || contactInfo)) {
+      if (['confidential', 'identified'].includes(mode) && (contactName || contactInfo)) {
         try {
-          await storeVaultIdentity(caseId, { name: contactName, contact: contactInfo, stored_at: new Date().toISOString() });
+          await storeVaultIdentity(caseId, { name: contactName, contact: contactInfo, stored_at: new Date().toISOString() }, reportingContext.reporting_session);
         } catch {
           // 409 already stored is harmless; other failures do not block the receipt.
         }
@@ -169,7 +196,10 @@ function ReportPageInner() {
         JSON.stringify({ sealed: encryptedRef.sealed, key: encryptedRef.key }),
       );
       storeReporterCase({ caseId, publicCode: handle.public_code });
-      setReceipt({ caseId, code: handle.public_code, secret: handle.recovery_secret });
+      setReceipt({
+        caseId, code: handle.public_code, secret: handle.recovery_secret,
+        privacy: (record.payload.privacy_receipt as Record<string, string | boolean>) ?? {},
+      });
       setStep(4);
       push(t('rpt_report_created'), 'ok');
     } catch (err) {
@@ -243,6 +273,22 @@ function ReportPageInner() {
         subtitle={t('rpt_page_subtitle')}
         actions={<Button variant="danger" size="sm" onClick={quickExit}>{t('rpt_quick_exit')}</Button>}
       />
+      {!reportingContext && (
+        <Panel title="Choose your reporting organisation">
+          <p className="muted">Reports must enter through an active organisation channel. The server—not this browser—binds the report to that organisation.</p>
+          <Field label="Organisation reporting code" hint="For example: standard-bank. Use the code supplied by your organisation.">
+            <Input value={organisation} onChange={(event) => setOrganisation(event.target.value)} placeholder="organisation-code" />
+          </Field>
+          {organisationError && <Alert tone="danger" title="Organisation unavailable">{organisationError}</Alert>}
+          <Button onClick={openOrganisation} loading={resolvingOrganisation}>Continue to organisation</Button>
+        </Panel>
+      )}
+      {reportingContext && (
+        <Alert tone="info" title={`You are reporting to ${reportingContext.organisation.display_name}`}>
+          This reporting channel is operated through SafelyTold. Your report will be securely bound to this organisation.
+        </Alert>
+      )}
+      {!reportingContext ? null : <>
       <Stepper steps={steps} current={step} />
 
       <Alert tone="danger" title={t('rpt_device_alert_title')}>
@@ -264,15 +310,15 @@ function ReportPageInner() {
       {step === 0 && (
         <div className="stack">
           <p className="muted"><strong>{t('rpt_step_1_of_4')}</strong> {t('rpt_how_raise_concern')}</p>
-          {REPORT_MODES.map((m) => (
+          {REPORT_MODES.filter((item) => reportingContext.allowed_modes.includes(item.value)).map((m) => (
             <RadioCard
               key={m.value}
               value={m.value}
               selected={mode === m.value}
-              onSelect={(value) => setMode(value as 'anonymous' | 'confidential' | 'identified')}
-              title={t(m.key)}
-              badge={<Badge tone="accent">{t(m.value === 'anonymous' ? 'mode_anon_badge' : m.value === 'confidential' ? 'mode_conf_badge' : 'mode_iden_badge')}</Badge>}
-              description={t(m.value === 'anonymous' ? 'mode_anon_desc' : m.value === 'confidential' ? 'mode_conf_desc' : 'mode_iden_desc')}
+              onSelect={setMode}
+              title={clientText(t, m.key, m.title)}
+              badge={<Badge tone="accent">{clientText(t, m.badgeKey, m.badge)}</Badge>}
+              description={clientText(t, m.descKey, m.description)}
             />
           ))}
           <div className="row">
@@ -286,8 +332,19 @@ function ReportPageInner() {
           <div className="grid">
             <Field label={t('rpt_category')} required>
               <Select value={category} onChange={(e) => setCategory(e.target.value)} placeholder={t('rpt_select_category')}>
-                {TAXONOMY.map((item) => <option key={item.value} value={item.value}>{t(item.key)}</option>)}
+                {TAXONOMY_GROUPS.map((group) => (
+                  <optgroup key={group.value} label={group.label}>
+                    {group.items.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </optgroup>
+                ))}
               </Select>
+            </Field>
+            <Field label="Your relationship to the organisation" required hint="This describes your relationship, not your identity.">
+              <Select
+                value={reporterType}
+                onChange={(e) => setReporterType(e.target.value)}
+                options={REPORTER_TYPES.map((item) => ({ value: item.value, label: item.label }))}
+              />
             </Field>
             <Field label={t('rpt_jurisdiction')} hint={t('rpt_jurisdiction_hint')}>
               <Select value={jurisdiction} onChange={(e) => setJurisdiction(e.target.value)} options={JURISDICTIONS.map((j) => ({ ...j, label: t(j.key) }))} />
@@ -320,7 +377,7 @@ function ReportPageInner() {
             <Checkbox checked={immediateRisk} onChange={(e) => setImmediateRisk(e.target.checked)} label={t('rpt_urgent_protection')} />
             <Checkbox checked={preservation} onChange={(e) => setPreservation(e.target.checked)} label={t('rpt_preserve_materials')} />
           </div>
-          {mode !== 'anonymous' && (
+          {['confidential', 'identified'].includes(mode) && (
             <Panel title={t('rpt_contact_details_title')} subtitle={t('rpt_contact_details_subtitle')}>
               <div className="grid">
                 <Field label={t('rpt_name')}>
@@ -448,13 +505,19 @@ function ReportPageInner() {
           </Alert>
           <CodeBlock title={t('rpt_payload_preview')} text={JSON.stringify({
             mode,
+            reporter_type: reporterType,
             jurisdiction_code: jurisdiction,
             taxonomy_codes: [category],
             immediate_risk: immediateRisk,
             questionnaire: { dates, locations, witnesses: witnesses.split(',').map((w) => w.trim()).filter(Boolean), impacts, preservation_requests: preservation ? ['preserve_related_materials'] : [] },
             narrative_length: narrative.length,
           }, null, 2)} />
-          <Panel title={t(TAXONOMY.find((item) => item.value === category)?.key ?? 'rpt_uncategorised')}>
+          <Panel title={(() => {
+            const selectedCategory = TAXONOMY.find((item) => item.value === category);
+            return selectedCategory
+              ? clientText(t, selectedCategory.key, selectedCategory.label)
+              : t('rpt_uncategorised');
+          })()}>
             <p style={{ whiteSpace: 'pre-wrap' }}>{narrative}</p>
           </Panel>
           <div className="row between">
@@ -479,6 +542,23 @@ function ReportPageInner() {
               <Button variant="secondary" size="sm" onClick={() => navigator.clipboard?.writeText(receipt.secret).catch(() => undefined)}>{t('rpt_copy_secret')}</Button>
             </div>
           </div>
+          <Panel title="Privacy receipt" subtitle="These facts are attached to the report by the server.">
+            <div className="stack">
+              {[
+                ['Organisation', receipt.privacy.organisation],
+                ['Reporter type', friendlyValue(receipt.privacy.reporter_type)],
+                ['Eligibility', friendlyValue(receipt.privacy.eligibility)],
+                ['Reporter identity', friendlyValue(receipt.privacy.reporter_identity)],
+                ['Identity stored', yesNo(receipt.privacy.identity_stored)],
+                ['IP stored', yesNo(receipt.privacy.ip_stored)],
+                ['Device ID stored', yesNo(receipt.privacy.device_id_stored)],
+                ['Corporate SSO ID stored', yesNo(receipt.privacy.corporate_sso_id_stored)],
+                ['Anonymous mailbox', yesNo(receipt.privacy.anonymous_mailbox)],
+              ].map(([label, value]) => (
+                <div className="row between" key={String(label)}><strong>{String(label)}</strong><span>{String(value ?? 'Unknown')}</span></div>
+              ))}
+            </div>
+          </Panel>
           <div className="row">
             <Link href="/control-room/mailbox"><Button>{t('rpt_open_mailbox')}</Button></Link>
             <Link href="/control-room/case"><Button variant="secondary">{t('rpt_track_case')}</Button></Link>
@@ -486,6 +566,7 @@ function ReportPageInner() {
           </div>
         </Panel>
       )}
+      </>}
     </main>
   );
 }
@@ -503,4 +584,18 @@ async function sealNarrative(text: string): Promise<{ sealed: string; key: strin
   const key = await generateRandomKey();
   const sealed = await encryptString(key, text);
   return { sealed, key: await exportKeyBase64(key) };
+}
+
+function clientText(translate: (key: string) => string, key: string, fallback: string): string {
+  const translated = translate(key);
+  return translated === key ? fallback : translated;
+}
+
+function friendlyValue(value: string | boolean | undefined): string {
+  if (value === undefined) return 'Unknown';
+  return String(value).replaceAll('_', ' ').replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function yesNo(value: string | boolean | undefined): string {
+  return value === true ? 'Yes' : value === false ? 'No' : 'Unknown';
 }

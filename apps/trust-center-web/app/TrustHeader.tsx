@@ -25,7 +25,7 @@ export function TrustHeader() {
         <div className="site-header-inner">
           {/* Plain anchors so the links escape the /trust basePath and return
               to the main site root served by nginx. */}
-          <a href="/" aria-label="Home to main site"><Logo label="Workplace Integrity Trust Centre" /></a>
+          <a href="/" aria-label="Home to main site"><Logo label="SafelyTold Trust Centre" /></a>
           <nav className="nav-links" aria-label="Primary">
             {LINKS.map((link) => (
               link.href === '/' ? (

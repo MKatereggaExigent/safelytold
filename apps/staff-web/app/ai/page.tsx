@@ -17,6 +17,9 @@ const CAPABILITIES: { value: AiCapability; label: string; hint: string }[] = [
   { value: 'sla_remediation', label: 'SLA remediation', hint: 'Draft a remediation note for a missed SLA' },
 ];
 
+const capabilityLabel = (value: string) => CAPABILITIES.find((item) => item.value === value)?.label ?? value.replace(/_/g, ' ');
+const statusLabel = (value: string) => value.replace(/_/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+
 export default function AiPage() {
   const { session } = useSession();
   const { push } = useToast();
@@ -121,8 +124,8 @@ export default function AiPage() {
 
         <div className="stack">
           {result && (
-            <Panel title={`Output · ${String(result.capability)}`}>
-              <Alert tone={result.status === 'awaiting_human_review' ? 'warn' : 'ok'} title={`${result.status.replace(/_/g, ' ')} · requires human approval`}>
+            <Panel title={`Output · ${capabilityLabel(String(result.capability))}`}>
+              <Alert tone={result.status === 'awaiting_human_review' ? 'warn' : 'ok'} title={`${statusLabel(result.status)} · requires human approval`}>
                 <p style={{ whiteSpace: 'pre-wrap' }}>{result.output}</p>
                 <p className="muted" style={{ marginTop: 8 }}>
                   Uncertainty: {result.uncertainty} · Sources: {result.source_refs?.join(', ') ?? 'none'}
@@ -140,11 +143,11 @@ export default function AiPage() {
             {governance ? (
               <div className="stack">
                 <p className="muted"><strong>Provider:</strong> {governance.provider}</p>
-                <p className="muted"><strong>Raw evidence allowed:</strong> {String(governance.raw_evidence_allowed)}</p>
-                <p className="muted"><strong>Human approval default:</strong> {String(governance.human_approval_default)}</p>
+                <p className="muted"><strong>Raw evidence allowed:</strong> {governance.raw_evidence_allowed ? 'Yes' : 'No'}</p>
+                <p className="muted"><strong>Human approval required by default:</strong> {governance.human_approval_default ? 'Yes' : 'No'}</p>
                 <p className="muted"><strong>Prohibited purposes:</strong></p>
                 <ul>
-                  {governance.prohibited_purposes.map((p) => <li key={p} className="muted">{p}</li>)}
+                  {governance.prohibited_purposes.map((p) => <li key={p} className="muted">{statusLabel(p)}</li>)}
                 </ul>
               </div>
             ) : (
@@ -160,7 +163,7 @@ export default function AiPage() {
           loading={runsLoading}
           empty={<EmptyState title="No AI runs yet" description="Runs recorded by the AI gateway appear here, awaiting human review." />}
           columns={[
-            { key: 'capability', label: 'Capability', render: (r) => <Badge tone="info">{(r as unknown as AiRunView).capability.replace(/_/g, ' ')}</Badge> },
+            { key: 'capability', label: 'Capability', render: (r) => <Badge tone="info">{capabilityLabel((r as unknown as AiRunView).capability)}</Badge> },
             { key: 'purpose', label: 'Purpose', render: (r) => <span className="muted">{(r as unknown as AiRunView).purpose}</span> },
             { key: 'status', label: 'Status', render: (r) => <StatusPill status={(r as unknown as AiRunView).status} /> },
             { key: 'requested_by', label: 'Requested by', render: (r) => <span className="muted">{(r as unknown as AiRunView).requested_by ?? 'anonymous'}</span> },
@@ -170,7 +173,7 @@ export default function AiPage() {
               label: 'Review',
               render: (r) => {
                 const run = r as unknown as AiRunView;
-                if (run.status !== 'awaiting_human_review') return <span className="muted">{run.decision_note ?? run.status}</span>;
+                if (run.status !== 'awaiting_human_review') return <span className="muted">{run.decision_note ?? statusLabel(run.status)}</span>;
                 return (
                   <div className="row" style={{ gap: 8 }}>
                     <Button variant="ghost" size="sm" onClick={() => decide(run.id, true)}>Approve</Button>

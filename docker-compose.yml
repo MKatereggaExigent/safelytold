@@ -244,6 +244,8 @@ services:
       DATABASE_URL: postgresql+asyncpg://safelytold:${POSTGRES_PASSWORD:-safelytold_dev_only}@postgres-core:5432/tenancy
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-safelytold}:${RABBITMQ_PASSWORD:-safelytold_dev_only}@rabbitmq:5672/%2F
       ADMIN_SUPERUSER_EMAILS: ${ADMIN_SUPERUSER_EMAILS:-michael.kateregga@datasqan.com}
+      REPORTER_JWT_SECRET: ${REPORTER_JWT_SECRET:-development-reporter-jwt-secret-change-me}
+      SEED_TENANTS: '${SEED_TENANTS:-[{"id":"00000000-0000-0000-0000-000000000001","slug":"safelytold","display_name":"SafelyTold Public Interest","home_region":"za"},{"id":"00000000-0000-0000-0000-000000000002","slug":"standard-bank","display_name":"Standard Bank","home_region":"za"},{"id":"00000000-0000-0000-0000-000000000003","slug":"cticc","display_name":"CTICC","home_region":"za"}]}'
       DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       JWT_ISSUER: ${JWT_ISSUER:-http://keycloak:8080/realms/safelytold}
       JWT_AUDIENCE: safelytold-api
@@ -345,6 +347,7 @@ services:
       TEMPORAL_ADDRESS: temporal:7233
       S3_ENDPOINT_URL: http://minio:9000
       OPA_URL: http://opa:8181/v1/data/safelytold/authz/decision
+      REPORTER_JWT_SECRET: ${REPORTER_JWT_SECRET:-development-reporter-jwt-secret-change-me}
     depends_on: *id001
     read_only: true
     tmpfs:

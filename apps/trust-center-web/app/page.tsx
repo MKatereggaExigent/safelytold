@@ -13,6 +13,10 @@ export default function Trust() {
       </div>
 
       <div className="grid">
+        <Panel title="Full integrity lifecycle">
+          <Badge>Beyond a hotline</Badge>
+          <p>Prevention, four reporting modes, triage, fair case management, reporter protection, resolution and board-level organisational learning.</p>
+        </Panel>
         <Panel title="Privacy">
           <Badge>Data minimisation</Badge>
           <p>Separate identity realms, case-level encryption, purpose-bound access and no raw case data on the blockchain.</p>
